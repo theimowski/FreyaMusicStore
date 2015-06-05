@@ -10,6 +10,7 @@ open Freya.Machine
 open Freya.Machine.Extensions.Http
 open Freya.Machine.Extensions.Http.Cors
 open Freya.Machine.Router
+open Freya.Lenses.Http
 open Freya.Router
 
 open Microsoft.Owin.Hosting
@@ -34,15 +35,60 @@ let common =
         using http
         mediaTypesSupported commonMediaTypes }
 
+let getAlbum =
+    freya {
+        let! id = Freya.getLensPartial (Route.atom "id")
+        return! write (sprintf "Album no %d" (Int32.Parse id.Value))
+    }
+
+let albumMalformed = 
+    freya {
+        let! id = Freya.getLensPartial (Route.atom "id")
+        match id with
+        | Some id -> 
+            match Int32.TryParse id with
+            | true, _ -> return false
+            | _ -> return true
+        | _ -> return true
+    }
+    
+let getGenre =
+    freya {
+        let! name = Freya.getLensPartial (Route.atom "name")
+        return! write (sprintf "Genre: %s" name.Value)
+    }
+
 let home =
     freyaMachine {
         including common
         methodsSupported ( freya { return [ GET ] } )
         handleOk (fun _ -> freya { return! write "Hello World!" } ) } |> FreyaMachine.toPipeline
 
+let album = 
+    freyaMachine {
+        including common
+        malformed albumMalformed
+        methodsSupported ( freya { return [ GET ] } ) 
+        handleOk (fun _ -> getAlbum) } |> FreyaMachine.toPipeline
+
+let albums = 
+    freyaMachine {
+        including common
+        methodsSupported ( freya { return [ GET ] } ) 
+        handleOk (fun _ -> freya { return! write "many albums!" } ) } |> FreyaMachine.toPipeline
+
+let genre =
+    freyaMachine {
+        including common
+        methodsSupported ( freya { return [ GET ] } )
+        handleOk (fun _ -> getGenre ) } |> FreyaMachine.toPipeline
+
 let musicStore =
     freyaRouter {
-        resource (UriTemplate.Parse "/") home } |> FreyaRouter.toPipeline
+        resource (UriTemplate.Parse "/") home
+        resource (UriTemplate.Parse "/album/{id}") album
+        resource (UriTemplate.Parse "/albums") albums
+        resource (UriTemplate.Parse "/genre/{name}") genre } |> FreyaRouter.toPipeline
 
 type Project () =
     member __.Configuration () =
