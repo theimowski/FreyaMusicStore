@@ -1,0 +1,174 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>58bd4935-9b1d-4c5b-8b10-ca7d034d9fe8</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>FreyaMusicStore</RootNamespace>
+    <AssemblyName>FreyaMusicStore</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <TargetFSharpCoreVersion>4.3.1.0</TargetFSharpCoreVersion>
+    <Name>FreyaMusicStore</Name>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <Tailcalls>false</Tailcalls>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <WarningLevel>3</WarningLevel>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DocumentationFile>bin\Debug\FreyaMusicStore.XML</DocumentationFile>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <Tailcalls>true</Tailcalls>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <WarningLevel>3</WarningLevel>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DocumentationFile>bin\Release\FreyaMusicStore.XML</DocumentationFile>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
+  </PropertyGroup>
+  <Choose>
+    <When Condition="'$(VisualStudioVersion)' == '11.0'">
+      <PropertyGroup Condition="Exists('$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets')">
+        <FSharpTargetsPath>$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets</FSharpTargetsPath>
+      </PropertyGroup>
+    </When>
+    <Otherwise>
+      <PropertyGroup Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\FSharp\Microsoft.FSharp.Targets')">
+        <FSharpTargetsPath>$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\FSharp\Microsoft.FSharp.Targets</FSharpTargetsPath>
+      </PropertyGroup>
+    </Otherwise>
+  </Choose>
+  <Import Project="$(FSharpTargetsPath)" />
+  <ItemGroup>
+    <Compile Include="Program.fs" />
+    <None Include="App.config" />
+    <Content Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Aether">
+      <HintPath>packages\Aether.6.0\lib\net40\Aether.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Arachne.Core">
+      <HintPath>packages\Arachne.Core.1.0.7\lib\net45\Arachne.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Arachne.Http">
+      <HintPath>packages\Arachne.Http.1.0.7\lib\net45\Arachne.Http.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Arachne.Http.Cors">
+      <HintPath>packages\Arachne.Http.Cors.1.0.7\lib\net45\Arachne.Http.Cors.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Arachne.Language">
+      <HintPath>packages\Arachne.Language.1.0.7\lib\net45\Arachne.Language.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Arachne.Uri">
+      <HintPath>packages\Arachne.Uri.1.0.7\lib\net45\Arachne.Uri.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Arachne.Uri.Template">
+      <HintPath>packages\Arachne.Uri.Template.1.0.7\lib\net45\Arachne.Uri.Template.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Chiron">
+      <HintPath>packages\Chiron.4.0.0\lib\net45\Chiron.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="FParsec">
+      <HintPath>packages\FParsec.1.0.1\lib\net40-client\FParsec.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="FParsecCS">
+      <HintPath>packages\FParsec.1.0.1\lib\net40-client\FParsecCS.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Freya.Core">
+      <HintPath>packages\Freya.Core.1.0.185\lib\net45\Freya.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Freya.Lenses.Http">
+      <HintPath>packages\Freya.Lenses.Http.1.0.185\lib\net45\Freya.Lenses.Http.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Freya.Lenses.Http.Cors">
+      <HintPath>packages\Freya.Lenses.Http.Cors.1.0.185\lib\net45\Freya.Lenses.Http.Cors.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Freya.Machine">
+      <HintPath>packages\Freya.Machine.1.0.185\lib\net45\Freya.Machine.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Freya.Machine.Extensions.Http">
+      <HintPath>packages\Freya.Machine.Extensions.Http.1.0.185\lib\net45\Freya.Machine.Extensions.Http.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Freya.Machine.Extensions.Http.Cors">
+      <HintPath>packages\Freya.Machine.Extensions.Http.Cors.1.0.185\lib\net45\Freya.Machine.Extensions.Http.Cors.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Freya.Machine.Router">
+      <HintPath>packages\Freya.Machine.Router.1.0.185\lib\net45\Freya.Machine.Router.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Freya.Recorder">
+      <HintPath>packages\Freya.Recorder.1.0.185\lib\net45\Freya.Recorder.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Freya.Router">
+      <HintPath>packages\Freya.Router.1.0.185\lib\net45\Freya.Router.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="FSharp.Core">
+      <HintPath>packages\FSharp.Core.3.1.2.1\lib\net40\FSharp.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Hekate">
+      <HintPath>packages\Hekate.1.0.0\lib\net40\Hekate.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Owin">
+      <HintPath>packages\Microsoft.Owin.3.0.1\lib\net45\Microsoft.Owin.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Owin.Host.HttpListener">
+      <HintPath>packages\Microsoft.Owin.Host.HttpListener.3.0.1\lib\net45\Microsoft.Owin.Host.HttpListener.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Owin.Hosting">
+      <HintPath>packages\Microsoft.Owin.Hosting.3.0.1\lib\net45\Microsoft.Owin.Hosting.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="mscorlib" />
+    <Reference Include="Owin">
+      <HintPath>packages\Owin.1.0\lib\net40\Owin.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Numerics" />
+  </ItemGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
