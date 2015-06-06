@@ -44,11 +44,8 @@ let getAlbum =
 let albumMalformed = 
     freya {
         let! id = Freya.getLensPartial (Route.atom "id")
-        match id with
-        | Some id -> 
-            match Int32.TryParse id with
-            | true, _ -> return false
-            | _ -> return true
+        match Int32.TryParse id.Value with
+        | true, _ -> return false
         | _ -> return true
     }
     
