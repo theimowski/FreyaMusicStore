@@ -1,4 +1,5 @@
 ﻿open System
+open System.IO
 open System.Text
 open System.Reflection
 
@@ -34,7 +35,7 @@ let inline write (view : string, model : 'a) =
     freya {
         let contents = IO.File.ReadAllText(view + ".cshtml")
         let result =
-            RazorEngine.Engine.Razor.RunCompile(contents, "templateKey", typeof<'a>, model)
+            RazorEngine.Engine.Razor.RunCompile(contents, view, typeof<'a>, model)
 
         return {
             Data = Encoding.UTF8.GetBytes result
@@ -115,71 +116,77 @@ let genre =
         methodsSupported ( freya { return [ GET ] } )
         handleOk (fun _ -> getGenre ) } |> FreyaMachine.toPipeline
 
-let defaults =
-    freyaMachine {
-        using http
-        using httpCors
 
-        corsHeadersSupported (Freya.init [ "accept"; "content-type" ])
-        corsMethodsSupported (Freya.init [ GET; OPTIONS ])
-        corsOriginsSupported (Freya.init AccessControlAllowOriginRange.Any)
+let getFileInfo (path: string) =
+    let filePath = path.Trim ([| '/' |])
+    let fileInfo = FileInfo (filePath)
 
-        charsetsSupported (Freya.init [ Charset.Utf8 ])
-        languagesSupported (Freya.init [ LanguageTag.Parse "en" ]) }
+    fileInfo
 
-let private resourceAssembly =
-    Assembly.GetExecutingAssembly ()
+let readFile (file: FileInfo) =
+    File.ReadAllBytes (file.FullName)
 
-let resource key =
-    use stream = IO.File.OpenRead(key)
-    use reader = new IO.StreamReader (stream)
+// Response
 
-    Encoding.UTF8.GetBytes (reader.ReadToEnd ())
+let fileTypes =
+    [ ".jpg", MediaType.Parse "image/jpeg"
+      ".png", MediaType.Parse "image/png"
+      ".gif", MediaType.Parse "image/gif"
+      ".css", MediaType.Css] |> Map.ofList
 
-let private cssContent =
-    resource "Site.css"
-
-let private placeholderContent =
-    resource "placeholder.gif"
-
-let private firstNegotiatedOrElse def =
-    function | Negotiated (x :: _) -> x
-             | _ -> def
-
-let represent n x =
+let represent (n: Specification) x =
     { Description =
-        { Charset = Some (n.Charsets |> firstNegotiatedOrElse Charset.Utf8)
+        { Charset = None
           Encodings = None
-          MediaType = Some (n.MediaTypes |> firstNegotiatedOrElse MediaType.Text)
-          Languages = Some [ n.Languages |> firstNegotiatedOrElse (LanguageTag.Parse "en") ] }
+          MediaType = Some ((function | Negotiated x -> List.head x 
+                                      | _ -> MediaType.Text) n.MediaTypes)
+          Languages= None }
       Data = x }
 
+// Freya
 
-let private getContent content n =
-    represent n <!> Freya.init content
+let path =
+    Freya.memo (Freya.getLens Request.path)
 
-let private getCss =
-    getContent cssContent
+let fileInfo =
+    Freya.memo (getFileInfo <!> path)
 
-let private getPlaceholder = 
-    getContent placeholderContent
+let file =
+    Freya.memo (readFile <!> fileInfo)
 
-let private css =
+let fileType =
+    Freya.memo ((function | (x: FileInfo) when x.Exists -> [ Map.find x.Extension fileTypes ]
+                          | _ -> [ MediaType.Text ]) <!> fileInfo)
+
+// Machine
+
+let existsDecision =
+    (fun (x: FileInfo) -> x.Exists) <!> fileInfo
+
+let fileHandler n =
+    represent n <!> file
+
+let lastModifiedConfiguration =
+    (fun (x: FileInfo) -> x.LastWriteTimeUtc) <!> fileInfo
+
+let mediaTypesConfiguration =
+    fileType
+
+// Resources
+
+let files : FreyaPipeline =
     freyaMachine {
-        including defaults
-        mediaTypesSupported (Freya.init [ MediaType.Css ])
-        handleOk getCss } |> FreyaMachine.toPipeline
+        using http
+        methodsSupported (Freya.init [ GET; HEAD ])
+        mediaTypesSupported mediaTypesConfiguration
+        exists existsDecision
+        handleOk fileHandler } |> FreyaMachine.toPipeline
 
-let private placeholder =
-    freyaMachine {
-        including defaults
-        mediaTypesSupported (Freya.init [ MediaType.Parse "image/gif" ])
-        handleOk getPlaceholder } |> FreyaMachine.toPipeline
+
+
 
 let musicStore =
     freyaRouter {
-        resource (UriTemplate.Parse "/Site.css") css
-        resource (UriTemplate.Parse "/placeholder.gif") placeholder
         resource (UriTemplate.Parse "/") home
         resource (UriTemplate.Parse "/album/{id}") album
         resource (UriTemplate.Parse "/genres") genres
@@ -187,7 +194,7 @@ let musicStore =
 
 type Project () =
     member __.Configuration () =
-        OwinAppFunc.ofFreya musicStore
+        OwinAppFunc.ofFreya (musicStore >?= files)
 
 [<EntryPoint>]
 let run _ =
