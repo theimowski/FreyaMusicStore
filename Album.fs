@@ -49,7 +49,7 @@ let ok _ =
         let! id = id
         let ctx = Db.getContext()
         let album = Db.getAlbumDetails id.Value ctx |> Option.get |> AlbumDetails.fromDb
-        return! write ("album", album)
+        return! writeHtml ("album", album)
     }
 
 let entity =

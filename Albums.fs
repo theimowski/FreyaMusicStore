@@ -16,7 +16,7 @@ let get =
     freya {
         let ctx = Db.getContext()
         let albums = Db.getAlbumsDetails ctx |> Array.map Album.AlbumDetails.fromDb
-        return! write ("albums", { Albums = albums } )
+        return! writeHtml ("albums", { Albums = albums } )
     }
 
 let pipe = 

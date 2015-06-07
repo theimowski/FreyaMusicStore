@@ -23,7 +23,7 @@ let get =
         let! name = name
         let ctx = Db.getContext()
         let albums = Db.getAlbumsForGenre name ctx |> Array.map Album.Album.fromDb
-        return! write ("genre", { Name = name; Albums = albums } )
+        return! writeHtml ("genre", { Name = name; Albums = albums } )
     }
 
 let pipe =

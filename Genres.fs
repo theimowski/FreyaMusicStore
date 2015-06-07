@@ -19,7 +19,7 @@ let get =
     freya {
         let ctx = Db.getContext()
         let genres = Db.getGenres ctx |> Array.map Genre.fromDb
-        return! write ("genres", { Genres = genres } )
+        return! writeHtml ("genres", { Genres = genres } )
     }
 
 let pipe = 

@@ -14,4 +14,4 @@ let pipe =
     freyaMachine {
         including common
         methodsSupported ( freya { return [ GET ] } )
-        handleOk (fun _ -> freya { return!  write ("home", {Greeting = "Hello World!" } ) } ) } |> FreyaMachine.toPipeline
+        handleOk (fun _ -> freya { return!  writeHtml ("home", {Greeting = "Hello World!" } ) } ) } |> FreyaMachine.toPipeline

@@ -14,7 +14,7 @@ open Freya.Machine.Extensions.Http
 
 open RazorEngine.Templating
 
-let inline write (view : string, model : 'a) =
+let inline writeHtml (view : string, model : 'a) =
     freya {
         let contents = File.ReadAllText(view + ".cshtml")
         let result =
