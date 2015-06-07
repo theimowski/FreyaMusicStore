@@ -1,4 +1,6 @@
-﻿open System
+﻿module FreyaMusicStore.Program
+
+open System
 open System.IO
 open System.Text
 open System.Reflection
@@ -31,58 +33,6 @@ try
 with e ->
     ()
 
-let inline write (view : string, model : 'a) =
-    freya {
-        let contents = IO.File.ReadAllText(view + ".cshtml")
-        let result =
-            RazorEngine.Engine.Razor.RunCompile(contents, view, typeof<'a>, model)
-
-        return {
-            Data = Encoding.UTF8.GetBytes result
-            Description =
-                { Charset = Some Charset.Utf8
-                  Encodings = None
-                  MediaType = Some MediaType.Html
-                  Languages = Some [ LanguageTag.Parse "en" ] } } }
-
-let commonMediaTypes =
-    freya {
-        return [
-            MediaType.Html ] }
-
-let common =
-    freyaMachine {
-        using http
-        mediaTypesSupported commonMediaTypes }
-
-let albumId =
-    freya {
-        let! id = Freya.getLensPartial (Route.atom "id")
-        match Int32.TryParse id.Value with
-        | true, id -> return Some id
-        | _ -> return None
-    }
-
-let getAlbum =
-    freya {
-        let! id = albumId
-        let ctx = Db.getContext()
-        let album = Db.getAlbumDetails id.Value ctx |> Option.get |> View.toAlbum
-        return! write ("album", album)
-    }
-
-let albumMalformed = 
-    freya {
-        let! id = albumId
-        return Option.isNone id
-    }
-
-let albumExists = 
-    freya {
-        let! id = albumId
-        let ctx = Db.getContext()
-        return Db.getAlbumDetails id.Value ctx |> Option.isSome
-    }
     
 let getGenre =
     freya {
@@ -96,13 +46,6 @@ let home =
         methodsSupported ( freya { return [ GET ] } )
         handleOk (fun _ -> freya { return!  write ("home", {Greeting = "Hello World!" } ) } ) } |> FreyaMachine.toPipeline
 
-let album = 
-    freyaMachine {
-        including common
-        malformed albumMalformed
-        exists albumExists
-        methodsSupported ( freya { return [ GET ] } ) 
-        handleOk (fun _ -> getAlbum) } |> FreyaMachine.toPipeline
 
 let genres = 
     freyaMachine {
@@ -188,7 +131,7 @@ let files : FreyaPipeline =
 let musicStore =
     freyaRouter {
         resource (UriTemplate.Parse "/") home
-        resource (UriTemplate.Parse "/album/{id}") album
+        resource (UriTemplate.Parse "/album/{id}") Album.album
         resource (UriTemplate.Parse "/genres") genres
         resource (UriTemplate.Parse "/genre/{name}") genre } |> FreyaRouter.toPipeline
 
