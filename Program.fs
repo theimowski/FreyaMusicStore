@@ -54,18 +54,33 @@ let common =
         using http
         mediaTypesSupported commonMediaTypes }
 
-let getAlbum =
+let albumId =
     freya {
         let! id = Freya.getLensPartial (Route.atom "id")
-        return! write ("home", {Greeting = sprintf "Album no %d" (Int32.Parse id.Value) })
+        match Int32.TryParse id.Value with
+        | true, id -> return Some id
+        | _ -> return None
+    }
+
+let getAlbum =
+    freya {
+        let! id = albumId
+        let ctx = Db.getContext()
+        let album = Db.getAlbumDetails id.Value ctx |> Option.get |> View.toAlbum
+        return! write ("album", album)
     }
 
 let albumMalformed = 
     freya {
-        let! id = Freya.getLensPartial (Route.atom "id")
-        match Int32.TryParse id.Value with
-        | true, _ -> return false
-        | _ -> return true
+        let! id = albumId
+        return Option.isNone id
+    }
+
+let albumExists = 
+    freya {
+        let! id = albumId
+        let ctx = Db.getContext()
+        return Db.getAlbumDetails id.Value ctx |> Option.isSome
     }
     
 let getGenre =
@@ -84,6 +99,7 @@ let album =
     freyaMachine {
         including common
         malformed albumMalformed
+        exists albumExists
         methodsSupported ( freya { return [ GET ] } ) 
         handleOk (fun _ -> getAlbum) } |> FreyaMachine.toPipeline
 
@@ -123,6 +139,8 @@ let resource key =
 let private cssContent =
     resource "Site.css"
 
+let private placeholderContent =
+    resource "placeholder.gif"
 
 let private firstNegotiatedOrElse def =
     function | Negotiated (x :: _) -> x
@@ -143,15 +161,25 @@ let private getContent content n =
 let private getCss =
     getContent cssContent
 
+let private getPlaceholder = 
+    getContent placeholderContent
+
 let private css =
     freyaMachine {
         including defaults
         mediaTypesSupported (Freya.init [ MediaType.Css ])
         handleOk getCss } |> FreyaMachine.toPipeline
 
+let private placeholder =
+    freyaMachine {
+        including defaults
+        mediaTypesSupported (Freya.init [ MediaType.Parse "image/gif" ])
+        handleOk getPlaceholder } |> FreyaMachine.toPipeline
+
 let musicStore =
     freyaRouter {
         resource (UriTemplate.Parse "/Site.css") css
+        resource (UriTemplate.Parse "/placeholder.gif") placeholder
         resource (UriTemplate.Parse "/") home
         resource (UriTemplate.Parse "/album/{id}") album
         resource (UriTemplate.Parse "/genres") genres
