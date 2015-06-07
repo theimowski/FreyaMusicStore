@@ -20,13 +20,13 @@
 <table>
     <tr>
         <th>
+            Title
+        </th>
+        <th>
             Genre
         </th>
         <th>
             Artist
-        </th>
-        <th>
-            Title
         </th>
         <th>
             Price
@@ -38,22 +38,39 @@
     {
         <tr>
             <td>
+                <a href="@String.Format("/album/{0}", item.AlbumId)">@Truncate(item.Title, 25)</a>
+            </td>
+            <td>
                 @item.Genre
             </td>
             <td>
                 @Truncate(item.Artist, 25)
             </td>
             <td>
-                @Truncate(item.Title, 25)
-            </td>
-            <td>
                 @item.Price
             </td>
             <td>
-                
+                <a href="#" class="delete" data-id="@item.AlbumId">Delete</a>
             </td>
         </tr>
     }
 
 </table>
+<script type="text/javascript">
+        $('.delete').click(function (a) {
+            var id = Number.parseInt($(a.target).attr("data-id"))
+            var confirmation = confirm("delete album with id" + id + " ?");
+            var success = function () {
+                $(a.target).closest('tr').fadeOut();
+            }
+            if (confirmation){
+                $.ajax({
+                    type: "DELETE",
+                    url: "/album/" + id,
+                    success: success
+                });
+            } 
+            return false;
+        });
+</script>
 }

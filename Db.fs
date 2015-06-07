@@ -19,6 +19,13 @@ let firstOrNone s = s |> Seq.tryFind (fun _ -> true)
 let getGenres (ctx : DbContext) : Genre [] = 
     ctx.``[dbo].[Genres]`` |> Seq.toArray
 
+let getAlbum id (ctx : DbContext) : Album option = 
+    query { 
+        for album in ctx.``[dbo].[Albums]`` do
+            where (album.AlbumId = id)
+            select album
+    } |> firstOrNone
+
 let getAlbumsForGenre genreName (ctx : DbContext) : Album [] = 
     query { 
         for album in ctx.``[dbo].[Albums]`` do

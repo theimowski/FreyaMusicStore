@@ -8,6 +8,7 @@ open Freya.Core
 open Freya.Router
 open Freya.Machine
 open Freya.Machine.Extensions.Http
+open Freya.Lenses.Http
 
 type Album = 
     { AlbumId : int
@@ -20,14 +21,16 @@ type Album =
           AlbumArtUrl = a.AlbumArtUrl }
 
 type AlbumDetails = 
-    { Title : string
+    { AlbumId : int
+      Title : string
       AlbumArtUrl : string
       Price : decimal
       Artist : string
       Genre : string }
 
     static member fromDb (a : Db.AlbumDetails) = 
-        { Title = a.Title
+        { AlbumId = a.AlbumId
+          Title = a.Title
           AlbumArtUrl = a.AlbumArtUrl
           Price = a.Price
           Artist = a.Artist
@@ -41,12 +44,18 @@ let id =
         | _ -> return None
     }
 
-let get =
+let ok _ =
     freya {
         let! id = id
         let ctx = Db.getContext()
         let album = Db.getAlbumDetails id.Value ctx |> Option.get |> AlbumDetails.fromDb
         return! write ("album", album)
+    }
+
+let entity =
+    freya {
+        let! meth = Freya.getLens Request.meth
+        return meth = GET
     }
 
 let isMalformed = 
@@ -62,10 +71,22 @@ let doesExist =
         return Db.getAlbumDetails id.Value ctx |> Option.isSome
     }
 
+let delete =
+    freya {
+        let! id = id
+        let ctx = Db.getContext()
+        let album = Db.getAlbum id.Value ctx |> Option.get
+        album.Delete()
+        ctx.SubmitUpdates()
+        return ()
+    }
+
 let pipe = 
     freyaMachine {
         including common
         malformed isMalformed
         exists doesExist
-        methodsSupported ( freya { return [ GET ] } ) 
-        handleOk (fun _ -> get) } |> FreyaMachine.toPipeline
+        methodsSupported ( freya { return [ GET; DELETE ] } ) 
+        handleOk ok
+        respondWithEntity entity
+        doDelete delete } |> FreyaMachine.toPipeline
