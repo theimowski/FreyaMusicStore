@@ -58,6 +58,7 @@
     <Compile Include="Common.fs" />
     <Compile Include="Home.fs" />
     <Compile Include="Album.fs" />
+    <Compile Include="Albums.fs" />
     <Compile Include="Genre.fs" />
     <Compile Include="Genres.fs" />
     <Compile Include="StaticFiles.fs" />
@@ -69,6 +70,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="album.cshtml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="albums.cshtml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="genres.cshtml">

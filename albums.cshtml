@@ -1,0 +1,59 @@
+﻿@{
+    Layout = "mylayout";
+}
+
+@helper Truncate(string input, int length)
+{
+    if (input.Length <= length)
+    {
+        @input
+    }
+    else
+    {
+        @input.Substring(0, length)<text>...</text>
+    }
+}
+
+@section Main
+{
+<h2>Index</h2>
+<table>
+    <tr>
+        <th>
+            Genre
+        </th>
+        <th>
+            Artist
+        </th>
+        <th>
+            Title
+        </th>
+        <th>
+            Price
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model.Albums)
+    {
+        <tr>
+            <td>
+                @item.Genre
+            </td>
+            <td>
+                @Truncate(item.Artist, 25)
+            </td>
+            <td>
+                @Truncate(item.Title, 25)
+            </td>
+            <td>
+                @item.Price
+            </td>
+            <td>
+                
+            </td>
+        </tr>
+    }
+
+</table>
+}

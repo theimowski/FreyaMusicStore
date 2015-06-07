@@ -34,3 +34,6 @@ let getAlbumDetails id (ctx : DbContext) : AlbumDetails option =
             where (album.AlbumId = id)
             select album
     } |> firstOrNone
+
+let getAlbumsDetails (ctx : DbContext) : AlbumDetails [] = 
+    ctx.``[dbo].[AlbumDetails]`` |> Seq.toArray
