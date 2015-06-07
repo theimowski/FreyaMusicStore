@@ -48,3 +48,9 @@ let getAlbumDetails id (ctx : DbContext) : AlbumDetails option =
 
 let getAlbumsDetails (ctx : DbContext) : AlbumDetails [] = 
     ctx.``[dbo].[AlbumDetails]`` |> Seq.toArray
+
+let createAlbum (artistId, genreId, price, title, albumArtUrl) (ctx : DbContext) =
+    let album = ctx.``[dbo].[Albums]``.Create(artistId, genreId, price, title)
+    album.AlbumArtUrl <- albumArtUrl
+    ctx.SubmitUpdates()
+    album
