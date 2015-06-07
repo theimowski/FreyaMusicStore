@@ -9,6 +9,7 @@ type Sql =
 
 type DbContext = Sql.dataContext
 type Album = DbContext.``[dbo].[Albums]Entity``
+type Artist = DbContext.``[dbo].[Artists]Entity``
 type Genre = DbContext.``[dbo].[Genres]Entity``
 type AlbumDetails = DbContext.``[dbo].[AlbumDetails]Entity``
 
@@ -18,6 +19,9 @@ let firstOrNone s = s |> Seq.tryFind (fun _ -> true)
 
 let getGenres (ctx : DbContext) : Genre [] = 
     ctx.``[dbo].[Genres]`` |> Seq.toArray
+
+let getArtists (ctx : DbContext) : Artist [] = 
+    ctx.``[dbo].[Artists]`` |> Seq.toArray
 
 let getAlbum id (ctx : DbContext) : Album option = 
     query { 

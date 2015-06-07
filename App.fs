@@ -12,13 +12,15 @@ open Freya.Machine.Extensions.Http
 open Freya.Machine.Router
 open Freya.Router
 
+
 let musicStore =
     freyaRouter {
         resource (UriTemplate.Parse "/") Home.pipe
         resource (UriTemplate.Parse "/albums") Albums.pipe
         resource (UriTemplate.Parse "/album/{id}") Album.pipe
         resource (UriTemplate.Parse "/genres") Genres.pipe
-        resource (UriTemplate.Parse "/genre/{name}") Genre.pipe } |> FreyaRouter.toPipeline
+        resource (UriTemplate.Parse "/genre/{name}") Genre.pipe
+        resource (UriTemplate.Parse "/forms/createAlbum") Forms.createAlbum } |> FreyaRouter.toPipeline
 
 type Project () =
     member __.Configuration () =

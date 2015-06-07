@@ -1,0 +1,54 @@
+﻿@{
+    Layout = "mylayout";
+}
+
+@section Main
+{
+<h2>Create</h2>
+
+<form method="POST" action="/albums">
+    <fieldset>
+        <legend>Album</legend>
+        <div class="editor-label">Genre</div>
+
+        <div class="editor-field">
+            <select name="GenreId">
+                @foreach (var genre in Model.Genres)
+                {
+                    <option value="@genre.Id">@genre.Name</option>
+                }
+            </select>
+        </div>
+        <div class="editor-label">Artist</div>
+        <div class="editor-field">
+            <select name="ArtistId">
+                @foreach (var artist in Model.Artists)
+                {
+                    <option value="@artist.Id">@artist.Name</option>
+                }
+            </select>
+        </div>
+        <div class="editor-label">Title</div>
+        <div class="editor-field">
+            <input name="Title" type="text" required="" maxlength="100">
+        </div>
+        <div class="editor-label">Price</div>
+        <div class="editor-field">
+            <input name="Price" type="number" required="" min="0.01" max="100.0" step="0.01">
+        </div>
+        <div class="editor-label">Album Art Url</div>
+        <div class="editor-field">
+            <input name="ArtUrl" type="text" required="" value="/placeholder.gif" maxlength="100">
+        </div>
+
+        <p>
+            <input type="submit" value="Create" />
+        </p>
+    </fieldset>
+</form>
+
+<div>
+    <a href="/albums">Back to albums</a>
+</div>
+
+}

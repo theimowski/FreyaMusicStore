@@ -62,6 +62,7 @@
     <Compile Include="Genre.fs" />
     <Compile Include="Genres.fs" />
     <Compile Include="StaticFiles.fs" />
+    <Compile Include="Forms.fs" />
     <Compile Include="App.fs" />
     <None Include="index.cshtml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -90,6 +91,9 @@
     <None Include="App.config" />
     <Content Include="packages.config" />
     <None Include="album.cshtml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="albumCreate.cshtml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

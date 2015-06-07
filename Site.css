@@ -263,7 +263,7 @@ div.editor-field
 	margin-bottom: 10px;
 }
 
-input[type=text], input[type=password], select
+input[type=text], input[type=password], input[type=number], input[type=email], select
 {
 	border: 1px solid #8A8575;
 	width: 300px;
