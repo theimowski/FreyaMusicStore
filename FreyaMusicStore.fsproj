@@ -57,8 +57,12 @@
     <Compile Include="Db.fs" />
     <Compile Include="View.fs" />
     <Compile Include="Common.fs" />
+    <Compile Include="Home.fs" />
     <Compile Include="Album.fs" />
-    <Compile Include="Program.fs" />
+    <Compile Include="Genre.fs" />
+    <Compile Include="Genres.fs" />
+    <Compile Include="StaticFiles.fs" />
+    <Compile Include="App.fs" />
     <None Include="index.cshtml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

@@ -9,7 +9,7 @@ open Freya.Router
 open Freya.Machine
 open Freya.Machine.Extensions.Http
 
-let albumId =
+let id =
     freya {
         let! id = Freya.getLensPartial (Route.atom "id")
         match Int32.TryParse id.Value with
@@ -17,31 +17,31 @@ let albumId =
         | _ -> return None
     }
 
-let getAlbum =
+let get =
     freya {
-        let! id = albumId
+        let! id = id
         let ctx = Db.getContext()
         let album = Db.getAlbumDetails id.Value ctx |> Option.get |> View.toAlbum
         return! write ("album", album)
     }
 
-let albumMalformed = 
+let isMalformed = 
     freya {
-        let! id = albumId
+        let! id = id
         return Option.isNone id
     }
 
-let albumExists = 
+let doesExist = 
     freya {
-        let! id = albumId
+        let! id = id
         let ctx = Db.getContext()
         return Db.getAlbumDetails id.Value ctx |> Option.isSome
     }
 
-let album = 
+let pipe = 
     freyaMachine {
         including common
-        malformed albumMalformed
-        exists albumExists
+        malformed isMalformed
+        exists doesExist
         methodsSupported ( freya { return [ GET ] } ) 
-        handleOk (fun _ -> getAlbum) } |> FreyaMachine.toPipeline
+        handleOk (fun _ -> get) } |> FreyaMachine.toPipeline
