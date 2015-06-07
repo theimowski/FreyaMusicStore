@@ -16,17 +16,17 @@ let getContext() = Sql.GetDataContext()
 
 let firstOrNone s = s |> Seq.tryFind (fun _ -> true)
 
-let getGenres (ctx : DbContext) : Genre list = 
-    ctx.``[dbo].[Genres]`` |> Seq.toList
+let getGenres (ctx : DbContext) : Genre [] = 
+    ctx.``[dbo].[Genres]`` |> Seq.toArray
 
-let getAlbumsForGenre genreName (ctx : DbContext) : Album list = 
+let getAlbumsForGenre genreName (ctx : DbContext) : Album [] = 
     query { 
         for album in ctx.``[dbo].[Albums]`` do
             join genre in ctx.``[dbo].[Genres]`` on (album.GenreId = genre.GenreId)
             where (genre.Name = genreName)
             select album
     }
-    |> Seq.toList
+    |> Seq.toArray
 
 let getAlbumDetails id (ctx : DbContext) : AlbumDetails option = 
     query { 

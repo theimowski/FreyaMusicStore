@@ -9,6 +9,30 @@ open Freya.Router
 open Freya.Machine
 open Freya.Machine.Extensions.Http
 
+type Album = 
+    { AlbumId : int
+      Title : string
+      AlbumArtUrl : string }
+
+    static member fromDb (a : Db.Album) =
+        { AlbumId = a.AlbumId
+          Title = a.Title 
+          AlbumArtUrl = a.AlbumArtUrl }
+
+type AlbumDetails = 
+    { Title : string
+      AlbumArtUrl : string
+      Price : decimal
+      Artist : string
+      Genre : string }
+
+    static member fromDb (a : Db.AlbumDetails) = 
+        { Title = a.Title
+          AlbumArtUrl = a.AlbumArtUrl
+          Price = a.Price
+          Artist = a.Artist
+          Genre = a.Genre }
+
 let id =
     freya {
         let! id = Freya.getLensPartial (Route.atom "id")
@@ -21,7 +45,7 @@ let get =
     freya {
         let! id = id
         let ctx = Db.getContext()
-        let album = Db.getAlbumDetails id.Value ctx |> Option.get |> View.toAlbum
+        let album = Db.getAlbumDetails id.Value ctx |> Option.get |> AlbumDetails.fromDb
         return! write ("album", album)
     }
 
