@@ -1,6 +1,7 @@
 ﻿module FreyaMusicStore.Albums
 
 open System
+open System.Globalization
 open System.IO
 
 open Arachne.Http
@@ -56,7 +57,7 @@ let mInt (s: string) =
     | _ -> None
 
 let mDec (s: string) = 
-    match Decimal.TryParse s with
+    match Decimal.TryParse(s, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture) with
     | true, x -> Some x
     | _ -> None
 
@@ -117,7 +118,7 @@ let onCreated _ =
         let! album = createAlbum
         do! Freya.setLensPartial 
                 Response.Headers.location 
-                (Location.Parse (sprintf "http://localhost:8080/album/%d" album.AlbumId))
+                (Location.Parse (String.Format(String.Format("http://localhost:8080{0}", Uris.album), album.AlbumId)))
         return! writeHtml ("album", album)
     }
 
