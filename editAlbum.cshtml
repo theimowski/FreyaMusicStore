@@ -1,0 +1,55 @@
+﻿@using FreyaMusicStore
+@{
+    Layout = "mylayout";
+}
+
+@section Main
+{
+    <h2>Create</h2>
+
+    <form method="PUT" action="@String.Format(Uris.album, Model.Album.AlbumId)">
+        <fieldset>
+            <legend>Album</legend>
+            <div class="editor-label">Genre</div>
+
+            <div class="editor-field">
+                <select name="GenreId">
+                    @foreach (var genre in Model.Genres)
+                    {
+                        <option value="@genre.Id" @(genre.Id == Model.Album.GenreId? "selected" : "") >@genre.Name</option>
+                    }
+                </select>
+            </div>
+            <div class="editor-label">Artist</div>
+            <div class="editor-field">
+                <select name="ArtistId">
+                    @foreach (var artist in Model.Artists)
+                    {
+                        <option value="@artist.Id" @(artist.Id == Model.Album.ArtistId? "selected" : "") >@artist.Name</option>
+                    }
+                </select>
+            </div>
+            <div class="editor-label">Title</div>
+            <div class="editor-field">
+                <input name="Title" type="text" required="" maxlength="100" value="@Model.Album.Title">
+            </div>
+            <div class="editor-label">Price</div>
+            <div class="editor-field">
+                <input name="Price" type="number" required="" min="0.01" max="100.0" step="0.01" value="@Model.Album.Price.ToString(System.Globalization.CultureInfo.InvariantCulture)">
+            </div>
+            <div class="editor-label">Album Art Url</div>
+            <div class="editor-field">
+                <input name="ArtUrl" type="text" required="" value="@Model.Album.AlbumArtUrl" maxlength="100">
+            </div>
+
+            <p>
+                <input type="submit" value="Create" />
+            </p>
+        </fieldset>
+    </form>
+
+    <div>
+        <a href="@Uris.albums">Back to albums</a>
+    </div>
+
+}

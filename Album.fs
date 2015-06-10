@@ -13,11 +13,17 @@ open Freya.Lenses.Http
 type Album = 
     { AlbumId : int
       Title : string
+      ArtistId : int
+      GenreId : int
+      Price : decimal
       AlbumArtUrl : string }
 
     static member fromDb (a : Db.Album) =
         { AlbumId = a.AlbumId
           Title = a.Title 
+          ArtistId = a.ArtistId
+          GenreId = a.GenreId
+          Price = a.Price
           AlbumArtUrl = a.AlbumArtUrl }
 
 type AlbumDetails = 

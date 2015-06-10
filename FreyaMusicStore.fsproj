@@ -59,6 +59,7 @@
     <Compile Include="Uris.fs" />
     <Compile Include="Home.fs" />
     <Compile Include="Album.fs" />
+    <Compile Include="EditAlbum.fs" />
     <Compile Include="Albums.fs" />
     <Compile Include="NewAlbum.fs" />
     <Compile Include="Genre.fs" />
@@ -75,6 +76,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="newAlbum.cshtml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="editAlbum.cshtml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="album.cshtml">
