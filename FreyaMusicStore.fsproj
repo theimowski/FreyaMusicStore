@@ -56,13 +56,14 @@
   <ItemGroup>
     <Compile Include="Db.fs" />
     <Compile Include="Common.fs" />
+    <Compile Include="Uris.fs" />
     <Compile Include="Home.fs" />
     <Compile Include="Album.fs" />
     <Compile Include="Albums.fs" />
+    <Compile Include="NewAlbum.fs" />
     <Compile Include="Genre.fs" />
     <Compile Include="Genres.fs" />
     <Compile Include="StaticFiles.fs" />
-    <Compile Include="Forms.fs" />
     <Compile Include="App.fs" />
     <None Include="index.cshtml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -71,6 +72,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="albums.cshtml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="newAlbum.cshtml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="album.cshtml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="genres.cshtml">
@@ -90,12 +97,6 @@
     </None>
     <None Include="App.config" />
     <Content Include="packages.config" />
-    <None Include="album.cshtml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="albumCreate.cshtml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Aether">

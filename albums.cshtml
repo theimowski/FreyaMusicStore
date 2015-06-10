@@ -18,7 +18,7 @@
 {
 <h2>Index</h2>
 <p>
-    <a href="/forms/createAlbum">Create New</a>
+    <a href="@FreyaMusicStore.Uris.newAlbum">Create New</a>
 </p>
 <table>
     <tr>
@@ -53,7 +53,8 @@
                 @item.Price
             </td>
             <td>
-                <a href="#" class="delete" data-id="@item.AlbumId">Delete</a>
+                <a href="#" class="delete" data-id="@item.AlbumId">Delete</a> | 
+                <a href="@String.Format("/forms/editAlbum?id={0}", item.AlbumId)">Edit</a>
             </td>
         </tr>
     }

@@ -15,12 +15,12 @@ open Freya.Router
 
 let musicStore =
     freyaRouter {
-        resource (UriTemplate.Parse "/") Home.pipe
-        resource (UriTemplate.Parse "/albums") Albums.pipe
-        resource (UriTemplate.Parse "/album/{id}") Album.pipe
-        resource (UriTemplate.Parse "/genres") Genres.pipe
-        resource (UriTemplate.Parse "/genre/{name}") Genre.pipe
-        resource (UriTemplate.Parse "/forms/createAlbum") Forms.createAlbum } |> FreyaRouter.toPipeline
+        resource (UriTemplate.Parse Uris.home) Home.pipe
+        resource (UriTemplate.Parse Uris.albums) Albums.pipe
+        resource (UriTemplate.Parse Uris.album) Album.pipe
+        resource (UriTemplate.Parse Uris.newAlbum) NewAlbum.pipe
+        resource (UriTemplate.Parse Uris.genres) Genres.pipe
+        resource (UriTemplate.Parse Uris.genre) Genre.pipe } |> FreyaRouter.toPipeline
 
 type Project () =
     member __.Configuration () =

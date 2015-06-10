@@ -38,7 +38,7 @@ type AlbumDetails =
 
 let id =
     freya {
-        let! id = Freya.getLensPartial (Route.atom "id")
+        let! id = Freya.getLensPartial (Route.atom "0")
         match Int32.TryParse id.Value with
         | true, id -> return Some id
         | _ -> return None
