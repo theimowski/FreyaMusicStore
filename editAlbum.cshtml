@@ -7,7 +7,7 @@
 {
     <h2>Create</h2>
 
-    <form method="POST" action="@String.Format(Uris.album, Model.Album.AlbumId)">
+    <form>
         <fieldset>
             <legend>Album</legend>
             <div class="editor-label">Genre</div>
@@ -51,5 +51,22 @@
     <div>
         <a href="@Uris.albums">Back to albums</a>
     </div>
+
+    <script>
+        $('form').submit(function (event) {
+            var success = function(data){
+                window.location = String.format("@Uris.album", @Model.Album.AlbumId);
+            }
+
+            $.ajax({
+                type: "PUT",
+                data: $( this ).serializeArray(),
+                url: String.format("@Uris.album", @Model.Album.AlbumId),
+                success: success
+            });
+
+            event.preventDefault();
+        });
+</script>
 
 }

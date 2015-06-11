@@ -5,6 +5,19 @@
     <title>Freya Music Store</title>
     <link href="/Site.css" rel="stylesheet" type="text/css" />
     <script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+    <script>
+        if (!String.format) {
+            String.format = function (format) {
+                var args = Array.prototype.slice.call(arguments, 1);
+                return format.replace(/{(\d+)}/g, function (match, number) {
+                    return typeof args[number] != 'undefined'
+                      ? args[number]
+                      : match
+                    ;
+                });
+            };
+        }
+    </script>
 </head>
 <body>
     <div id="header">
@@ -27,5 +40,6 @@
     <div id="footer">
         built with <a href="http://docs.freya.io/en/latest/">Freya</a> and <a href="http://fsharp.org">F#</a>
     </div>
+
 </body>
 </html>

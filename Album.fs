@@ -62,7 +62,7 @@ let ok _ =
 let entity =
     freya {
         let! meth = Freya.getLens Request.meth
-        return meth = GET
+        return meth = GET || meth = PUT
     }
 
 let isMalformed = 
@@ -184,17 +184,7 @@ let editAlbum =
         return AlbumDetails.fromDb details.Value
     } |> Freya.memo
 
-let onCreated _ =
-    freya {
-        let! album = editAlbum
-        do! Freya.setLensPartial 
-                Response.Headers.location 
-                (Location.Parse (String.Format(String.Format("http://localhost:8080{0}", Uris.album), album.AlbumId)))
-        return! writeHtml ("album", album)
-    }
-
-
-let post = 
+let put = 
     freya {
         let! _ = editAlbum
         return ()
@@ -205,9 +195,9 @@ let pipe =
         including common
         malformed isMalformed
         exists doesExist
-        methodsSupported ( freya { return [ GET; POST; DELETE ] } ) 
+        methodsSupported ( freya { return [ GET; PUT; DELETE ] } ) 
         handleOk ok
-        handleCreated onCreated
         respondWithEntity entity
+        created (Freya.init false)
         doDelete delete
-        doPost post } |> FreyaMachine.toPipeline
+        doPut put } |> FreyaMachine.toPipeline
