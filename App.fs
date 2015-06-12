@@ -21,7 +21,9 @@ let musicStore =
         resource (UriTemplate.Parse Uris.album) Album.pipe
         resource (UriTemplate.Parse Uris.editAlbum) EditAlbum.pipe
         resource (UriTemplate.Parse Uris.genres) Genres.pipe
-        resource (UriTemplate.Parse Uris.genre) Genre.pipe } |> FreyaRouter.toPipeline
+        resource (UriTemplate.Parse Uris.genre) Genre.pipe
+        
+        resource (UriTemplate.Parse Uris.logon) Logon.pipe } |> FreyaRouter.toPipeline
 
 type Project () =
     member __.Configuration () =

@@ -1,0 +1,33 @@
+﻿@using FreyaMusicStore
+@{
+    Layout = "mylayout";
+}
+
+@section Main
+{
+<h2>Log On</h2>
+<p>
+    Please enter your user name and password. Register if you don't have an account.
+</p>
+<form>
+    <div>
+        <fieldset>
+            <legend>Account Information</legend>
+
+            <div class="editor-label">User Name</div>
+            <div class="editor-field">
+                <input type="text" name="UserName" required />
+            </div>
+
+            <div class="editor-label">Password</div>
+            <div class="editor-field">
+                <input type="password" name="Password" required/>
+            </div>
+
+            <p>
+                <input type="submit" value="Log On" />
+            </p>
+        </fieldset>
+    </div>
+</form>
+}

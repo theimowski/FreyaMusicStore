@@ -7,3 +7,5 @@ let album =     "/album/{0}"
 let editAlbum = "/album/{0}/edit"
 let genres =    "/genres"
 let genre =     "/genre/{0}"
+
+let logon =     "/account/logon"
