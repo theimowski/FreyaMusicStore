@@ -12,6 +12,9 @@ open Freya.Machine.Extensions.Http
 open Freya.Machine.Router
 open Freya.Router
 
+open Microsoft.AspNet.Identity
+open Microsoft.Owin.Security
+open Microsoft.Owin.Security.Cookies
 
 let musicStore =
     freyaRouter {
@@ -26,8 +29,21 @@ let musicStore =
         resource (UriTemplate.Parse Uris.logon) Logon.pipe } |> FreyaRouter.toPipeline
 
 type Project () =
-    member __.Configuration () =
-        OwinAppFunc.ofFreya (musicStore >?= StaticFiles.pipe)
+    member __.Configuration (appBuilder : Owin.IAppBuilder) =
+        
+
+        appBuilder.Use(
+            typeof<CookieAuthenticationMiddleware>, 
+            appBuilder, 
+            CookieAuthenticationOptions(
+                AuthenticationType = DefaultAuthenticationTypes.ApplicationCookie,
+                AuthenticationMode = AuthenticationMode.Active))  |> ignore
+
+        Microsoft.Owin.Extensions.IntegratedPipelineExtensions.UseStageMarker(appBuilder, Owin.PipelineStage.Authenticate) |> ignore
+        
+        appBuilder.Use( OwinMidFunc.ofFreya (musicStore >?= StaticFiles.pipe) ) |> ignore
+        ()
+        
 
 open Microsoft.Owin.Hosting
 open RazorEngine.Templating

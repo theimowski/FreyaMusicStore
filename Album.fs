@@ -11,6 +11,8 @@ open Freya.Machine
 open Freya.Machine.Extensions.Http
 open Freya.Lenses.Http
 
+open Microsoft.AspNet.Identity
+
 type Album = 
     { AlbumId : int
       Title : string
@@ -184,6 +186,19 @@ let editAlbum =
         return AlbumDetails.fromDb details.Value
     } |> Freya.memo
 
+let isAuthorized = 
+    freya {
+        let! meth = Freya.getLens Request.meth
+        match meth with 
+        | GET -> return true
+        | _ -> return! (fun freyaState -> 
+            let ctx = Microsoft.Owin.OwinContext(freyaState.Environment)
+            let result = ctx.Authentication.AuthenticateAsync(DefaultAuthenticationTypes.ApplicationCookie) |> Async.AwaitTask |> Async.RunSynchronously
+            async.Return (result <> null, freyaState)
+        )
+
+    }
+
 let put = 
     freya {
         let! _ = editAlbum
@@ -194,6 +209,7 @@ let pipe =
     freyaMachine {
         including common
         malformed isMalformed
+        authorized isAuthorized
         exists doesExist
         methodsSupported ( freya { return [ GET; PUT; DELETE ] } ) 
         handleOk ok
