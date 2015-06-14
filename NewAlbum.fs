@@ -26,8 +26,15 @@ let ok _ =
         return! writeHtml ("newAlbum", { Genres = genres; Artists = artists } )
     }
 
+let onUnauthorized _ =
+    freya {
+        return! writeHtml ("logon", {Logon.Logon.ReturnUrl = Uris.newAlbum; Logon.Logon.ValidationMsg = ""})
+    }
+
 let pipe = 
     freyaMachine {
         including common
+        authorized checkAuthCookie
+        handleUnauthorized onUnauthorized
         methodsSupported ( freya { return [ GET ] } ) 
         handleOk ok } |> FreyaMachine.toPipeline

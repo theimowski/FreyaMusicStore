@@ -14,6 +14,8 @@ open Freya.Lenses.Http
 open Freya.Machine
 open Freya.Machine.Extensions.Http
 
+open Microsoft.AspNet.Identity
+
 open RazorEngine.Templating
 
 let inline writeHtml (view : string, model : 'a) =
@@ -116,3 +118,10 @@ let readAlbum =
             }
         return album
     } |> Freya.memo
+
+
+let checkAuthCookie : Freya<bool> =
+    (fun freyaState -> 
+            let ctx = Microsoft.Owin.OwinContext(freyaState.Environment)
+            let result = ctx.Authentication.AuthenticateAsync(DefaultAuthenticationTypes.ApplicationCookie) |> Async.AwaitTask |> Async.RunSynchronously
+            async.Return (result <> null, freyaState))

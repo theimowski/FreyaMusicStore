@@ -52,10 +52,19 @@ let ok _ =
         return! writeHtml ("editAlbum", { Album = album; Genres = genres; Artists = artists } )
     }
 
+let onUnauthorized _ =
+    freya {
+        let! id = id
+        return! writeHtml ("logon", {Logon.Logon.ReturnUrl = String.Format(Uris.editAlbum, id.Value); Logon.Logon.ValidationMsg = ""})
+    }
+
+
 let pipe = 
     freyaMachine {
         including common
         methodsSupported ( freya { return [ GET ] } ) 
         malformed isMalformed
+        authorized checkAuthCookie
+        handleUnauthorized onUnauthorized
         exists doesExist
         handleOk ok } |> FreyaMachine.toPipeline
