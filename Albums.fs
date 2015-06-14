@@ -12,75 +12,10 @@ open Freya.Machine
 open Freya.Machine.Extensions.Http
 open Freya.Lenses.Http
 
+open Microsoft.AspNet.Identity
+
 type Albums = 
     { Albums : Album.AlbumDetails [] }
-
-type NewAlbum =
-    { Title : string
-      ArtistId : int
-      GenreId : int
-      Price : decimal
-      AlbumArtUrl : string }
-
-type MaybeBuilder() =
-    member __.Bind(m, f) = Option.bind f m
-    member __.Return(x) = Some x
-
-let maybe = MaybeBuilder()
-
-let readStream (x: Stream) =
-    use reader = new StreamReader (x)
-    reader.ReadToEndAsync()
-    |> Async.AwaitTask
-
-let readBody () =
-    freya {
-        let! body = Freya.getLens Request.body
-        return! Freya.fromAsync readStream body } |> Freya.memo
-
-let kv (s: string) =
-    match s.Split([| '=' |]) with
-    | [|k;v|] -> Some(k,v)
-    | _ -> None
-
-let both f (x,y) = f x, f y
-let decode = System.Net.WebUtility.UrlDecode
-
-let form () =
-    freya {
-        let! body = readBody ()
-        return body.Split([| '&' |]) |> Array.choose kv |> Array.map (both decode) |> Map.ofArray } |> Freya.memo
-
-let mInt (s: string) = 
-    match Int32.TryParse s with
-    | true, x -> Some x
-    | _ -> None
-
-let mDec (s: string) = 
-    match Decimal.TryParse(s, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture) with
-    | true, x -> Some x
-    | _ -> None
-
-
-let readAlbum =
-    freya {
-        let! form = form ()
-        let album =
-            maybe {
-                let! title = form |> Map.tryFind "Title"
-                let! artistId = form |> Map.tryFind "ArtistId" |> Option.bind mInt
-                let! genreId = form |> Map.tryFind "GenreId" |> Option.bind mInt
-                let! price = form |> Map.tryFind "Price" |> Option.bind mDec
-                let! albumArtUrl = form |> Map.tryFind "ArtUrl"
-                return 
-                    { Title = title
-                      ArtistId = artistId
-                      GenreId = genreId
-                      Price = price
-                      AlbumArtUrl = albumArtUrl }
-            }
-        return album
-    } |> Freya.memo
 
 let isMalformed = 
     freya {
@@ -88,6 +23,18 @@ let isMalformed =
         match meth with 
         | POST -> let! album = readAlbum in return album.IsNone
         | _ -> return false
+    }
+
+let isAuthorized =
+    (fun freyaState -> 
+            let ctx = Microsoft.Owin.OwinContext(freyaState.Environment)
+            let result = ctx.Authentication.AuthenticateAsync(DefaultAuthenticationTypes.ApplicationCookie) |> Async.AwaitTask |> Async.RunSynchronously
+            async.Return (result <> null, freyaState)
+    )
+
+let onUnauthorized _ =
+    freya {
+        return! writeHtml ("logon", {Logon.Logon.ReturnUrl = Uris.albums; Logon.Logon.ValidationMsg = ""})
     }
 
 let createAlbum =
@@ -134,6 +81,8 @@ let pipe =
         including common
         methodsSupported ( freya { return [ GET; POST ] } ) 
         malformed isMalformed
+        authorized isAuthorized
         handleOk (fun _ -> get)
+        handleUnauthorized onUnauthorized
         doPost post 
         handleCreated onCreated} |> FreyaMachine.toPipeline

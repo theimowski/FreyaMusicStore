@@ -58,13 +58,13 @@
     <Compile Include="Common.fs" />
     <Compile Include="Uris.fs" />
     <Compile Include="Home.fs" />
+    <Compile Include="Logon.fs" />
     <Compile Include="Album.fs" />
     <Compile Include="EditAlbum.fs" />
     <Compile Include="Albums.fs" />
     <Compile Include="NewAlbum.fs" />
     <Compile Include="Genre.fs" />
     <Compile Include="Genres.fs" />
-    <Compile Include="Logon.fs" />
     <Compile Include="StaticFiles.fs" />
     <Compile Include="App.fs" />
     <None Include="index.cshtml">

@@ -9,7 +9,10 @@
 <p>
     Please enter your user name and password. Register if you don't have an account.
 </p>
-<form method="POST">
+<p style="color: red">
+    @Model.ValidationMsg
+</p>
+<form method="POST" action="@String.Format("{0}?returnUrl={1}", Uris.logon, Model.ReturnUrl)">
     <div>
         <fieldset>
             <legend>Account Information</legend>
