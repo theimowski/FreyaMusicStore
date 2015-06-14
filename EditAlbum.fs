@@ -64,7 +64,7 @@ let pipe =
         including common
         methodsSupported ( freya { return [ GET ] } ) 
         malformed isMalformed
-        authorized checkAuthCookie
+        authorized isAdmin
         handleUnauthorized onUnauthorized
         exists doesExist
         handleOk ok } |> FreyaMachine.toPipeline

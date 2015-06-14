@@ -34,7 +34,7 @@ let onUnauthorized _ =
 let pipe = 
     freyaMachine {
         including common
-        authorized checkAuthCookie
+        authorized isAdmin
         handleUnauthorized onUnauthorized
         methodsSupported ( freya { return [ GET ] } ) 
         handleOk ok } |> FreyaMachine.toPipeline

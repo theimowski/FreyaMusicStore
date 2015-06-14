@@ -26,9 +26,12 @@ let ok _ =
         return! writeHtml ("logon", {ReturnUrl = Uris.home; ValidationMsg = ""} )
     }
 
-let authenticate : Freya<unit> = (fun freyaState ->
+let authenticate (user : Db.User) : Freya<unit> = (fun freyaState ->
         let ctx = Microsoft.Owin.OwinContext(freyaState.Environment)
-        ctx.Authentication.SignIn(ClaimsIdentity([], DefaultAuthenticationTypes.ApplicationCookie))
+        let claims = 
+            [ Claim(ClaimTypes.Role, user.Role)
+              Claim(ClaimTypes.Name, user.UserName) ]
+        ctx.Authentication.SignIn(ClaimsIdentity(claims, DefaultAuthenticationTypes.ApplicationCookie))
         async.Return ((), freyaState)
     )
 
@@ -38,16 +41,15 @@ let signOut : Freya<unit> = (fun freyaState ->
         async.Return ((), freyaState)
     )
 
-let correctCredentials = 
+let checkCredentials = 
     freya {
         let! form = form()
-        let username = form |> Map.tryFind "UserName"
-        let password = form |> Map.tryFind "Password"
-        match username, password with
-        | Some "admin", Some "admin" ->
-            return true
-        | _ ->
-            return false
+        return maybe {
+            let! username = form |> Map.tryFind "UserName"
+            let! password = form |> Map.tryFind "Password"
+            let ctx = Db.getContext()
+            return! Db.validateUser(username, passHash password) ctx
+        }
     } |> Freya.memo
 
 
@@ -63,21 +65,31 @@ let isAuthorized =
     freya {
         let! meth = Freya.getLens Request.meth
         if meth = POST then
-            return! correctCredentials
+            let! user = checkCredentials
+            return user.IsSome
         else
             return true
     }
 
 let post =
     freya {
-        let! correctCredentials = correctCredentials
-        if correctCredentials then
-            do! authenticate
+        let! user = checkCredentials
+        match user with
+        | Some creds ->
+            do! authenticate creds
+        | _ ->
+            ()
+    }
+
+let redirect = 
+    freya {
+        let! user = checkCredentials
+        return user.IsSome
     }
 
 let delete = 
     freya {
-        let! loggedOn = checkAuthCookie
+        let! loggedOn = isLoggedOn
         if loggedOn then
             do! signOut
     }
@@ -99,7 +111,7 @@ let pipe =
         methodsSupported ( freya { return [ GET; POST; DELETE ] } ) 
         authorized isAuthorized
         handleUnauthorized doUnauthorized
-        postRedirect correctCredentials
+        postRedirect redirect
         handleSeeOther doSeeOther
         handleOk ok
         doPost post 

@@ -117,7 +117,7 @@ let isAuthorized =
         let! meth = Freya.getLens Request.meth
         match meth with 
         | GET -> return true
-        | _ -> return! checkAuthCookie
+        | _ -> return! isAdmin
     }
 
 let onUnauthorized _ =

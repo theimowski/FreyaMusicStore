@@ -4,6 +4,7 @@ module FreyaMusicStore.Common
 open System
 open System.Globalization
 open System.IO
+open System.Security.Claims
 open System.Text
 
 open Arachne.Http
@@ -18,19 +19,38 @@ open Microsoft.AspNet.Identity
 
 open RazorEngine.Templating
 
+let fromNullable = function | null -> None | x -> Some x
 
-let checkAuthCookie : Freya<bool> =
+let getAuthResult: Freya<_> =
     (fun freyaState -> 
             let ctx = Microsoft.Owin.OwinContext(freyaState.Environment)
             let result = ctx.Authentication.AuthenticateAsync(DefaultAuthenticationTypes.ApplicationCookie) |> Async.AwaitTask |> Async.RunSynchronously
-            async.Return (result <> null, freyaState))
+            async.Return (fromNullable result, freyaState)) |> Freya.memo
+
+let isLoggedOn =
+    freya {
+        let! cookie = getAuthResult
+        return cookie.IsSome
+    }
+
+let isAdmin = 
+    freya {
+        let! cookie = getAuthResult
+        match cookie with
+        | Some c when c.Identity.HasClaim(Predicate(fun claim -> claim.Type = ClaimTypes.Role && claim.Value = "admin")) ->
+            return true
+        | _ ->
+            return false
+    }
 
 let inline writeHtml (view : string, model : 'a) =
     freya {
         let contents = File.ReadAllText(view + ".cshtml")
-        let! loggedOn = checkAuthCookie
+        let! authResult = getAuthResult
         let viewBag = DynamicViewBag()
-        if loggedOn then viewBag.AddValue("UserName", "admin")
+        authResult |> Option.iter (fun r ->
+            let userName = r.Identity.Claims |> Seq.find (fun c -> c.Type = ClaimTypes.Name) |> fun x -> x.Value
+            viewBag.AddValue("UserName", userName))
         let result =
             RazorEngine.Engine.Razor.RunCompile(contents, view, typeof<'a>, model, viewBag)
 
@@ -85,6 +105,7 @@ let form () =
 type MaybeBuilder() =
     member __.Bind(m, f) = Option.bind f m
     member __.Return(x) = Some x
+    member __.ReturnFrom(x) = x
 
 let maybe = MaybeBuilder()
 
@@ -129,3 +150,9 @@ let readAlbum =
         return album
     } |> Freya.memo
 
+let passHash (pass: string) =
+    use sha = Security.Cryptography.SHA256.Create()
+    Text.Encoding.UTF8.GetBytes(pass)
+    |> sha.ComputeHash
+    |> Array.map (fun b -> b.ToString("x2"))
+    |> String.concat ""

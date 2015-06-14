@@ -74,7 +74,7 @@ let pipe =
         including common
         methodsSupported ( freya { return [ GET; POST ] } ) 
         malformed isMalformed
-        authorized checkAuthCookie
+        authorized isAdmin
         handleOk (fun _ -> get)
         handleUnauthorized onUnauthorized
         doPost post 
