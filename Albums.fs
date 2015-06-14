@@ -62,6 +62,11 @@ let onCreated _ =
         return! writeHtml ("album", album)
     }
 
+let onForbidden _ =
+    freya {
+        return! writeHtml ("forbidden", ())
+    }
+
 let get =
     freya {
         let ctx = Db.getContext()
@@ -74,8 +79,10 @@ let pipe =
         including common
         methodsSupported ( freya { return [ GET; POST ] } ) 
         malformed isMalformed
-        authorized isAdmin
+        authorized isLoggedOn
+        allowed isAdmin
         handleOk (fun _ -> get)
         handleUnauthorized onUnauthorized
+        handleForbidden onForbidden
         doPost post 
         handleCreated onCreated} |> FreyaMachine.toPipeline

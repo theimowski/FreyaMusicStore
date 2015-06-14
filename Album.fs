@@ -117,12 +117,25 @@ let isAuthorized =
         let! meth = Freya.getLens Request.meth
         match meth with 
         | GET -> return true
+        | _ -> return! isLoggedOn
+    }
+
+let isAllowed = 
+    freya {
+        let! meth = Freya.getLens Request.meth
+        match meth with 
+        | GET -> return true
         | _ -> return! isAdmin
     }
 
 let onUnauthorized _ =
     freya {
         return! writeHtml ("logon", {Logon.Logon.ReturnUrl = Uris.albums; Logon.Logon.ValidationMsg = ""})
+    }
+
+let onForbidden _ =
+    freya {
+        return! writeHtml ("forbidden", ())
     }
 
 let put = 
@@ -136,6 +149,8 @@ let pipe =
         including common
         malformed isMalformed
         authorized isAuthorized
+        allowed isAllowed
+        handleForbidden onForbidden
         handleUnauthorized onUnauthorized
         exists doesExist
         methodsSupported ( freya { return [ GET; PUT; DELETE ] } ) 
