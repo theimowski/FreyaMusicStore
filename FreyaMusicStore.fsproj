@@ -59,6 +59,7 @@
     <Compile Include="Uris.fs" />
     <Compile Include="Home.fs" />
     <Compile Include="Logon.fs" />
+    <Compile Include="Register.fs" />
     <Compile Include="Album.fs" />
     <Compile Include="EditAlbum.fs" />
     <Compile Include="Albums.fs" />
@@ -92,6 +93,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="logon.cshtml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="register.cshtml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <Content Include="Site.css">

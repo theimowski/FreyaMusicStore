@@ -1,0 +1,45 @@
+﻿@using FreyaMusicStore
+@{
+    Layout = "mylayout";
+}
+
+@section Main
+{
+<h2>Create a New Account</h2>
+<p>
+    Use the form below to create a new account.
+</p>
+
+<form method="POST" action="@Uris.register">
+    <div>
+        <fieldset>
+            <legend>Account Information</legend>
+
+            <div class="editor-label">User Name</div>
+            <div class="editor-field">
+                <input type="text" name="UserName" required />
+            </div>
+
+            <div class="editor-label">Email</div>
+            <div class="editor-field">
+                <input type="email" name="Email" required />
+            </div>
+
+            <div class="editor-label">Password</div>
+            <div class="editor-field">
+                <input type="password" name="Password" required />
+            </div>
+
+            <div class="editor-label">Confirm Password</div>
+            <div class="editor-field">
+                <input type="password" name="ConfirmPassword" required />
+            </div>
+
+            <p>
+                <input type="submit" value="Register" />
+            </p>
+        </fieldset>
+    </div>
+</form>
+
+}

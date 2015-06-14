@@ -56,6 +56,11 @@ let createAlbum (artistId, genreId, price, title, albumArtUrl) (ctx : DbContext)
     ctx.SubmitUpdates()
     album
 
+let newUser (username, password, email) (ctx : DbContext) =
+    let user = ctx.``[dbo].[Users]``.Create(email, password, "user", username)
+    ctx.SubmitUpdates()
+    user
+
 let validateUser (username, password) (ctx : DbContext) : User option =
     query {
         for user in ctx.``[dbo].[Users]`` do
