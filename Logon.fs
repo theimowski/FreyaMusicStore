@@ -32,6 +32,11 @@ let authenticate : Freya<unit> = (fun freyaState ->
         async.Return ((), freyaState)
     )
 
+let signOut : Freya<unit> = (fun freyaState ->
+        let ctx = Microsoft.Owin.OwinContext(freyaState.Environment)
+        ctx.Authentication.SignOut(DefaultAuthenticationTypes.ApplicationCookie)
+        async.Return ((), freyaState)
+    )
 
 let correctCredentials = 
     freya {
@@ -70,6 +75,13 @@ let post =
             do! authenticate
     }
 
+let delete = 
+    freya {
+        let! loggedOn = checkAuthCookie
+        if loggedOn then
+            do! signOut
+    }
+
 let doSeeOther _ =
     freya {
         let! query = query 
@@ -84,10 +96,11 @@ let doSeeOther _ =
 let pipe = 
     freyaMachine {
         including common
-        methodsSupported ( freya { return [ GET; POST ] } ) 
+        methodsSupported ( freya { return [ GET; POST; DELETE ] } ) 
         authorized isAuthorized
         handleUnauthorized doUnauthorized
         postRedirect correctCredentials
         handleSeeOther doSeeOther
         handleOk ok
-        doPost post } |> FreyaMachine.toPipeline
+        doPost post 
+        doDelete delete } |> FreyaMachine.toPipeline

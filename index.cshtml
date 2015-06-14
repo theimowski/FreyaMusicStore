@@ -29,6 +29,17 @@
             <!-- <li> Html.RenderAction("CartSummary", "ShoppingCart");}</li>
              -->
         </ul>
+        <div style="float: right; margin-top: 20px;">
+            @if (@ViewBag.UserName == null)
+            {
+                <a href="@Uris.logon">Log In</a>
+            }
+            else
+            {
+                <span>Logged in as @ViewBag.UserName, </span>
+                <a href="#" id="logoff">Log Off</a>
+            }
+        </div>
     </div>
 
     <!-- Html.RenderAction("GenreMenu", "Store"); -->
@@ -40,6 +51,20 @@
     <div id="footer">
         built with <a href="http://docs.freya.io/en/latest/">Freya</a> and <a href="http://fsharp.org">F#</a>
     </div>
+
+    <script>
+        $('#logoff').click(function () {
+            var success = function () {
+                window.location = "@Uris.home";
+            };
+            $.ajax({
+                type: "DELETE",
+                url: "@Uris.logon",
+                success: success
+            });
+        });
+
+    </script>
 
 </body>
 </html>

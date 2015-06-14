@@ -18,11 +18,21 @@ open Microsoft.AspNet.Identity
 
 open RazorEngine.Templating
 
+
+let checkAuthCookie : Freya<bool> =
+    (fun freyaState -> 
+            let ctx = Microsoft.Owin.OwinContext(freyaState.Environment)
+            let result = ctx.Authentication.AuthenticateAsync(DefaultAuthenticationTypes.ApplicationCookie) |> Async.AwaitTask |> Async.RunSynchronously
+            async.Return (result <> null, freyaState))
+
 let inline writeHtml (view : string, model : 'a) =
     freya {
         let contents = File.ReadAllText(view + ".cshtml")
+        let! loggedOn = checkAuthCookie
+        let viewBag = DynamicViewBag()
+        if loggedOn then viewBag.AddValue("UserName", "admin")
         let result =
-            RazorEngine.Engine.Razor.RunCompile(contents, view, typeof<'a>, model)
+            RazorEngine.Engine.Razor.RunCompile(contents, view, typeof<'a>, model, viewBag)
 
         return {
             Data = Encoding.UTF8.GetBytes result
@@ -119,9 +129,3 @@ let readAlbum =
         return album
     } |> Freya.memo
 
-
-let checkAuthCookie : Freya<bool> =
-    (fun freyaState -> 
-            let ctx = Microsoft.Owin.OwinContext(freyaState.Environment)
-            let result = ctx.Authentication.AuthenticateAsync(DefaultAuthenticationTypes.ApplicationCookie) |> Async.AwaitTask |> Async.RunSynchronously
-            async.Return (result <> null, freyaState))
