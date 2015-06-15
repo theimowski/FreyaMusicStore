@@ -27,7 +27,9 @@ let musicStore =
         resource (UriTemplate.Parse Uris.genre) Genre.pipe
         
         resource (UriTemplate.Parse Uris.logon) Logon.pipe
-        resource (UriTemplate.Parse Uris.register) Register.pipe } |> FreyaRouter.toPipeline
+        resource (UriTemplate.Parse Uris.register) Register.pipe 
+        
+        resource (UriTemplate.Parse Uris.cart) Cart.pipe } |> FreyaRouter.toPipeline
 
 type Project () =
     member __.Configuration (appBuilder : Owin.IAppBuilder) =

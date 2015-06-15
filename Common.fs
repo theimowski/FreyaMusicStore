@@ -16,6 +16,7 @@ open Freya.Machine
 open Freya.Machine.Extensions.Http
 
 open Microsoft.AspNet.Identity
+open Microsoft.Owin.Security
 
 open RazorEngine.Templating
 
@@ -43,14 +44,33 @@ let isAdmin =
             return false
     }
 
+let setSessionCartId cartId : Freya<unit> = (fun freyaState ->
+        let ctx = Microsoft.Owin.OwinContext(freyaState.Environment)
+        ctx.Response.Cookies.Append("cartId", cartId)
+        async.Return ((), freyaState)
+    )
+
+let getSessionCartId : Freya<string option> = (fun freyaState ->
+        let ctx = Microsoft.Owin.OwinContext(freyaState.Environment)
+        let cartId = 
+            match ctx.Request.Cookies.["cartId"] with
+            | null -> None
+            | x -> Some x
+        async.Return (cartId, freyaState)
+    )
+
+
+let userName (result: AuthenticateResult) =
+    result.Identity.Claims |> Seq.find (fun c -> c.Type = ClaimTypes.Name) |> fun x -> x.Value
+
 let inline writeHtml (view : string, model : 'a) =
     freya {
         let contents = File.ReadAllText(view + ".cshtml")
         let! authResult = getAuthResult
+        let! cartId = getSessionCartId
         let viewBag = DynamicViewBag()
-        authResult |> Option.iter (fun r ->
-            let userName = r.Identity.Claims |> Seq.find (fun c -> c.Type = ClaimTypes.Name) |> fun x -> x.Value
-            viewBag.AddValue("UserName", userName))
+        authResult |> Option.iter (fun r -> viewBag.AddValue("UserName", userName r))
+        cartId |> Option.iter (fun c -> viewBag.AddValue("CartId", c))
         let result =
             RazorEngine.Engine.Razor.RunCompile(contents, view, typeof<'a>, model, viewBag)
 

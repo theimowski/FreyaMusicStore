@@ -1,5 +1,13 @@
-﻿@{
+﻿@using FreyaMusicStore
+@{
     Layout = "mylayout";
+}
+
+@{
+    var cartId = 
+        ViewBag.UserName ??
+        ViewBag.CartId ??
+        System.Guid.NewGuid().ToString("N");
 }
 
 @section Main
@@ -23,5 +31,25 @@
         <em>Price:</em>
         @String.Format("{0:F}", Model.Price)
     </p>
+    <form method="POST" action="@String.Format(Uris.cart, cartId)" >
+        <input hidden="hidden" name="AlbumId" value="@Model.AlbumId" />
+        <input type="submit" class="button" value="Add to cart" />
+    </form>
+    <!--<p class="button">
+        <a id="addToCart" href="#">Add to cart</a>
+    </p>-->
 </div>
+
+<script>
+    $('#button').click(function () {
+        var success = function () {
+
+        };
+        $.ajax({
+            type: "POST",
+            url: "@Uris.cart",
+            success: success
+        });
+    });
+</script>
 }

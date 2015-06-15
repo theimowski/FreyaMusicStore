@@ -1,10 +1,12 @@
 ﻿module Db
 
+open System
+
 open FSharp.Data.Sql
 
 type Sql = 
     SqlDataProvider< 
-        "Server=(LocalDb)\\v11.0;Database=FreyaMusicStore;Trusted_Connection=True;MultipleActiveResultSets=true", 
+        "Server=localhost;Database=FreyaMusicStore;Trusted_Connection=True;MultipleActiveResultSets=true", 
         DatabaseVendor=Common.DatabaseProviderTypes.MSSQLSERVER >
 
 type DbContext = Sql.dataContext
@@ -13,6 +15,8 @@ type Artist = DbContext.``[dbo].[Artists]Entity``
 type Genre = DbContext.``[dbo].[Genres]Entity``
 type AlbumDetails = DbContext.``[dbo].[AlbumDetails]Entity``
 type User = DbContext.``[dbo].[Users]Entity``
+type Cart = DbContext.``[dbo].[Carts]Entity``
+type CartDetails = DbContext.``[dbo].[CartDetails]Entity``
 
 let getContext() = Sql.GetDataContext()
 
@@ -67,3 +71,32 @@ let validateUser (username, password) (ctx : DbContext) : User option =
             where (user.UserName = username && user.Password = password)
             select user
     } |> firstOrNone
+
+let getCart cartId albumId (ctx : DbContext) : Cart option =
+    query {
+        for cart in ctx.``[dbo].[Carts]`` do
+            where (cart.CartId = cartId && cart.AlbumId = albumId)
+            select cart
+    } |> firstOrNone
+
+let getCarts cartId (ctx : DbContext) : Cart list =
+    query {
+        for cart in ctx.``[dbo].[Carts]`` do
+            where (cart.CartId = cartId)
+            select cart
+    } |> Seq.toList
+
+let getCartsDetails cartId (ctx : DbContext) : CartDetails list =
+    query {
+        for cart in ctx.``[dbo].[CartDetails]`` do
+            where (cart.CartId = cartId)
+            select cart
+    } |> Seq.toList
+
+let addToCart cartId albumId (ctx : DbContext)  =
+    match getCart cartId albumId ctx with
+    | Some cart ->
+        cart.Count <- cart.Count + 1
+    | None ->
+        ctx.``[dbo].[Carts]``.Create(albumId, cartId, 1, DateTime.UtcNow) |> ignore
+    ctx.SubmitUpdates()

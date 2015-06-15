@@ -10,3 +10,5 @@ let genre =     "/genre/{0}"
 
 let logon =     "/account/logon"
 let register =  "/account/register"
+
+let cart =      "/cart/{0}"
