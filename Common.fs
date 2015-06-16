@@ -20,51 +20,47 @@ open Microsoft.Owin.Security
 
 open RazorEngine.Templating
 
-let fromNullable = function | null -> None | x -> Some x
+module Async =
+    let map f x = async { let! v = x in return f v }
 
-let getAuthResult: Freya<_> =
-    (fun freyaState -> 
-            let ctx = Microsoft.Owin.OwinContext(freyaState.Environment)
-            let result = ctx.Authentication.AuthenticateAsync(DefaultAuthenticationTypes.ApplicationCookie) |> Async.AwaitTask |> Async.RunSynchronously
-            async.Return (fromNullable result, freyaState)) |> Freya.memo
+module Option =
+    let fromNullable = function | null -> None | x -> Some x
 
-let isLoggedOn =
+let authResult (ctx: Microsoft.Owin.OwinContext) =
+    ctx.Authentication.AuthenticateAsync(DefaultAuthenticationTypes.ApplicationCookie) 
+    |> Async.AwaitTask 
+    |> Async.map Option.fromNullable
+
+let getEnv: Freya<FreyaEnvironment> = (fun freyaState -> async { return freyaState.Environment, freyaState })
+
+let owinContext = 
     freya {
-        let! cookie = getAuthResult
-        return cookie.IsSome
+        let! env = getEnv
+        return Microsoft.Owin.OwinContext(env)
     }
 
-let isAdmin = 
+let getAuthResult = 
     freya {
-        let! cookie = getAuthResult
-        match cookie with
-        | Some c when c.Identity.HasClaim(Predicate(fun claim -> claim.Type = ClaimTypes.Role && claim.Value = "admin")) ->
-            return true
-        | _ ->
-            return false
-    }
+        let! ctx = owinContext
+        return! (Freya.fromAsync authResult) ctx
+    } |> Freya.memo
 
-let setSessionCartId cartId : Freya<unit> = (fun freyaState ->
-        let ctx = Microsoft.Owin.OwinContext(freyaState.Environment)
-        ctx.Response.Cookies.Append("cartId", cartId)
-        async.Return ((), freyaState)
-    )
+let isLoggedOn = getAuthResult |> Freya.map Option.isSome
 
-let getSessionCartId : Freya<string option> = (fun freyaState ->
-        let ctx = Microsoft.Owin.OwinContext(freyaState.Environment)
-        let cartId = 
-            match ctx.Request.Cookies.["cartId"] with
-            | null -> None
-            | x -> Some x
-        async.Return (cartId, freyaState)
-    )
+let adminRole (authResult: AuthenticateResult) =
+    authResult.Identity.HasClaim(Predicate(fun claim -> claim.Type = ClaimTypes.Role && claim.Value = "admin"))
 
-let removeSessionCartId : Freya<unit> = (fun freyaState ->
-        let ctx = Microsoft.Owin.OwinContext(freyaState.Environment)
-        ctx.Response.Cookies.Delete("cartId", Microsoft.Owin.CookieOptions())
-        async.Return ((), freyaState)
-    )
+let isAdmin = getAuthResult |> Freya.map (Option.exists adminRole)
 
+let setCookie key value = owinContext |> Freya.map (fun ctx -> ctx.Response.Cookies.Append(key, value))
+
+let getCookie key = owinContext |> Freya.map (fun ctx -> ctx.Request.Cookies.[key] |> Option.fromNullable)
+
+let removeCookie key = owinContext |> Freya.map (fun ctx -> ctx.Response.Cookies.Delete(key))
+
+let setSessionCartId = setCookie "cartId" 
+let getSessionCartId = getCookie "cartId"
+let removeSessionCartId = removeCookie "cartId"
 
 let userName (result: AuthenticateResult) =
     result.Identity.Claims |> Seq.find (fun c -> c.Type = ClaimTypes.Name) |> fun x -> x.Value
