@@ -29,18 +29,18 @@
     </tr>
     @foreach (var item in Model.CartItems)
     {
-        <tr id="row-@item.RecordId">
+        <tr id="row-@item.AlbumId">
             <td>
                 <a href="@String.Format(Uris.album, item.AlbumId)">@item.Title</a>
             </td>
             <td>
                 @item.Price
             </td>
-            <td id="item-count-@item.RecordId">
+            <td id="item-count-@item.AlbumId">
                 @item.Count
             </td>
             <td>
-                <a href="#" class="RemoveLink" data-id="@item.RecordId">Remove from cart</a>
+                <a href="#" class="RemoveLink" data-id="@item.AlbumId">Remove from cart</a>
             </td>
         </tr>
     }
@@ -60,24 +60,24 @@
 
 <script>
 $(".RemoveLink").click(function() {
-	var recordToDelete = $(this).attr("data-id");
+    var albumId = $(this).attr("data-id");
+    var $count = $("#item-count-" + albumId);
+    var count = Number.parseInt( $count.val() );
 
-	if (recordToDelete != '') {
+	if (albumId != '') {
 
-		$.post("/ShoppingCart/RemoveFromCart", {
-				"id": recordToDelete
-			},
-			function(data) {
-				if (data.ItemCount == 0) {
-					$('#row-' + data.DeleteId).fadeOut('slow');
-				} else {
-					$('#item-count-' + data.DeleteId).text(data.ItemCount);
-				}
+	    var success = function (data) {
+	        document.open();
+	        document.write(data);
+	        document.close();
+	    };
 
-				$('#cart-total').text(data.CartTotal);
-				$('#update-message').text(data.Message);
-				$('#cart-status').text('Cart (' + data.CartCount + ')');
-			});
+	    $.ajax({
+	        type: "DELETE",
+	        url: window.location.pathname,
+	        data: String.format("AlbumId={0}", albumId),
+	        success: success
+	    });
 	}
 });
 </script>

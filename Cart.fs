@@ -9,15 +9,13 @@ open Freya.Machine.Extensions.Http
 open Freya.Router
 
 type Item = 
-    { RecordId : int
-      AlbumId : int
+    { AlbumId : int
       Title : string
       Price : decimal
       Count : int }
 
     static member fromDb (details : Db.CartDetails) =
-        { RecordId = details.AlbumId
-          AlbumId = details.AlbumId
+        { AlbumId = details.AlbumId
           Title = details.AlbumTitle
           Price = details.Price
           Count = details.Count }
@@ -53,11 +51,12 @@ let isMalformed =
     freya {
         let! meth = Freya.getLens Request.meth
         match meth with
-        | POST ->
+        | GET ->
+            return false
+        | _ ->
             let! albumId = albumId
             return albumId.IsNone
-        | _ ->
-            return false
+        
     }
 
 
@@ -77,12 +76,24 @@ let post =
         return ()
     }
 
+let delete =
+    freya {
+        let! albumId = albumId
+        let! cartId = id
+
+        let ctx = Db.getContext()
+        let cart = Db.getCart cartId.Value albumId.Value ctx
+        Db.removeFromCart cart.Value albumId ctx
+        return ()
+    }
+
 let pipe = 
     freyaMachine {
         including common
-        methodsSupported ( freya { return [ GET; POST ] } ) 
+        methodsSupported ( freya { return [ GET; POST; DELETE ] } ) 
         handleOk ok
         respondWithEntity (Freya.init true)
         malformed isMalformed
         created (Freya.init false)
-        doPost post } |> FreyaMachine.toPipeline
+        doPost post 
+        doDelete delete} |> FreyaMachine.toPipeline
