@@ -1,0 +1,42 @@
+﻿@using FreyaMusicStore
+@{
+    Layout = "mylayout";
+}
+
+@section Main
+{
+    <form method="POST" action="@Uris.checkout">
+        <h2>Address And Payment</h2>
+        <fieldset>
+            <legend>Shipping Information</legend>
+
+            <div class="editor-label">Address</div>
+            <div class="editor-field">
+                <input type="text" name="Address" />
+            </div>
+
+            <div class="editor-label">Phone</div>
+            <div class="editor-field">
+                <input type="text" name="Phone" />
+            </div>
+
+            <div class="editor-label">Street</div>
+            <div class="editor-field">
+                <input type="text" name="Street" />
+            </div>
+
+        </fieldset>
+        <fieldset>
+            <legend>Payment</legend>
+            <p>We're running a promotion: all music is free with the promo code: "FREE"</p>
+
+            <div class="editor-label">Promo Code</div>
+            <div class="editor-field">
+                <input type="text" name="PromoCode" />
+            </div>
+        </fieldset>
+
+        <input type="submit" value="Submit Order" />
+
+    </form>
+}

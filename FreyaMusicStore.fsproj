@@ -67,6 +67,7 @@
     <Compile Include="Genre.fs" />
     <Compile Include="Genres.fs" />
     <Compile Include="Cart.fs" />
+    <Compile Include="Checkout.fs" />
     <Compile Include="StaticFiles.fs" />
     <Compile Include="App.fs" />
     <None Include="index.cshtml">
@@ -103,6 +104,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="cart.cshtml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="checkout.cshtml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="checkoutComplete.cshtml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <Content Include="Site.css">

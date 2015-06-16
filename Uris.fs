@@ -12,3 +12,4 @@ let logon =     "/account/logon"
 let register =  "/account/register"
 
 let cart =      "/cart/{0}"
+let checkout =  "/checkout"
