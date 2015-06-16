@@ -43,7 +43,7 @@ let signOut : Freya<unit> = (fun freyaState ->
 
 let checkCredentials = 
     freya {
-        let! form = form()
+        let! form = form
         return maybe {
             let! username = form |> Map.tryFind "UserName"
             let! password = form |> Map.tryFind "Password"
@@ -73,7 +73,7 @@ let isAuthorized =
 
 let upgradeCarts userName = 
     freya {
-        let! cartId = getSessionCartId
+        let! cartId = getRequestCookie "cartId"
         cartId |> Option.iter (fun cartId ->
             let ctx = Db.getContext()
             Db.upgradeCarts (cartId, userName) ctx
@@ -87,7 +87,7 @@ let post =
         | Some creds ->
             do! authenticate creds
             do! upgradeCarts creds.UserName
-            do! removeSessionCartId
+            do! deleteResponseCookie "cartId"
         | _ ->
             ()
     }

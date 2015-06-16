@@ -6,7 +6,7 @@ open FSharp.Data.Sql
 
 type Sql = 
     SqlDataProvider< 
-        "Server=localhost;Database=FreyaMusicStore;Trusted_Connection=True;MultipleActiveResultSets=true", 
+        "Server=(LocalDb)\\v11.0;Database=FreyaMusicStore;Trusted_Connection=True;MultipleActiveResultSets=true", 
         DatabaseVendor=Common.DatabaseProviderTypes.MSSQLSERVER >
 
 type DbContext = Sql.dataContext

@@ -25,7 +25,7 @@ let ok _ =
 
 let post =
     freya {
-        let! form = form()
+        let! form = form
         let user = maybe {
             let! username = Map.tryFind "UserName" form
             let! password = Map.tryFind "Password" form

@@ -42,7 +42,7 @@ let ok _=
 
 let albumId = 
     freya {
-        let! form = form()
+        let! form = form
         let albumId = form |> Map.tryFind "AlbumId"
         return albumId |> Option.bind mInt
     } |> Freya.memo
@@ -67,7 +67,7 @@ let post =
 
         match cartId.Value |> System.Guid.TryParse with
         | true, _ ->
-            do! setSessionCartId cartId.Value
+            do! setResponseCookie "cartId" cartId.Value
         | _ ->
             ()
 
