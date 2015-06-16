@@ -55,7 +55,15 @@ open RazorEngine.Templating
 [<EntryPoint>]
 let run _ =
     printfn "register layout"
-    RazorEngine.Engine.Razor.Compile(File.ReadAllText("index.cshtml"), "mylayout")
+    let config = RazorEngine.Configuration.TemplateServiceConfiguration()
+    config.CachingProvider <- new DefaultCachingProvider(Action<_>(ignore))
+    let service = RazorEngineService.Create(config)
+    RazorEngine.Engine.Razor <- service
+    DirectoryInfo(".").EnumerateFiles("*.cshtml") |> Seq.iter (fun fi ->
+        let name = Path.GetFileNameWithoutExtension(fi.Name)
+        let contents = File.ReadAllText(fi.Name)
+        RazorEngine.Engine.Razor.Compile(contents, name)
+    )
     printfn "starting app..."
     let _ = WebApp.Start<Project> ("http://localhost:8080")
     printfn "app started. Press enter to quit"

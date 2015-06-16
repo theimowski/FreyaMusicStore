@@ -54,23 +54,18 @@ module Katana =
 
     let owinContext = getEnv |> Freya.map (fun env -> OwinContext(env))
 
-    let getAuthResult = owinContext |> Freya.bind (Freya.fromAsync authResult) |> Freya.memo
+    let setResponseCookie key value = owinContext |> Freya.map (fun ctx -> ctx.Response.Cookies.Append(key, value))
 
-[<AutoOpen>]
-module Auth =
+    let getRequestCookie key = owinContext |> Freya.map (fun ctx -> ctx.Request.Cookies.[key] |> Option.fromNullable)
+
+    let deleteResponseCookie key = owinContext |> Freya.map (fun ctx -> ctx.Response.Cookies.Delete(key, CookieOptions()))
+
+    let getAuthResult = owinContext |> Freya.bind (Freya.fromAsync authResult) |> Freya.memo
     
     let isLoggedOn = getAuthResult |> Freya.map Option.isSome
     
     let isAdmin = getAuthResult |> Freya.map (Option.exists hasAdminRole)
 
-[<AutoOpen>]
-module Cookies =
-
-    let setResponseCookie key value = owinContext |> Freya.map (fun ctx -> ctx.Response.Cookies.Append(key, value))
-
-    let getRequestCookie key = owinContext |> Freya.map (fun ctx -> ctx.Request.Cookies.[key] |> Option.fromNullable)
-
-    let deleteResponseCookie key = owinContext |> Freya.map (fun ctx -> ctx.Response.Cookies.Delete(key))
 
 [<AutoOpen>]
 module Parsing =
@@ -160,7 +155,6 @@ module Machine =
 
 [<AutoOpen>]
 module Html =
-    open System.IO
     open System.Text
 
     open Arachne.Http
@@ -172,25 +166,22 @@ module Html =
 
     let inline writeHtml (view : string, model : 'a) =
         freya {
-            let contents = File.ReadAllText(view + ".cshtml")
             let! authResult = getAuthResult
             let! cartId = getRequestCookie "cartId"
+            let albumsInCart cartId = Db.getCartsDetails cartId (Db.getContext()) |> List.sumBy (fun c -> c.Count)
             let viewBag = DynamicViewBag()
-            authResult |> Option.iter (fun r -> viewBag.AddValue("UserName", userName r))
-            cartId |> Option.iter (fun c -> viewBag.AddValue("CartId", c))
-            let ctx = Db.getContext()
-            let cartItems =
-                match authResult, cartId with
-                | Some a, _ ->
-                    Db.getCartsDetails (userName a) ctx |> List.sumBy (fun c -> c.Count)
-                | _, Some c ->
-                    Db.getCartsDetails c ctx |> List.sumBy (fun c -> c.Count)
-                | _ -> 
-                    0
-            viewBag.AddValue("CartItems", cartItems)
-            let result =
-                RazorEngine.Engine.Razor.RunCompile(contents, view, typeof<'a>, model, viewBag)
+            match authResult, cartId with
+            | Some authResult, _ ->
+                let name = userName authResult
+                viewBag.AddValue("CartItems", albumsInCart name)
+                viewBag.AddValue("UserName", name)
+            | _, Some cartId ->
+                viewBag.AddValue("CartItems", albumsInCart cartId)
+                viewBag.AddValue("CartId", cartId)
+            | _ ->
+                ()
 
+            let result = RazorEngine.Engine.Razor.RunCompile(view, typeof<'a>, model, viewBag)
             return {
                 Data = Encoding.UTF8.GetBytes result
                 Description =

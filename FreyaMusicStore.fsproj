@@ -70,7 +70,7 @@
     <Compile Include="Checkout.fs" />
     <Compile Include="StaticFiles.fs" />
     <Compile Include="App.fs" />
-    <None Include="index.cshtml">
+    <None Include="layout.cshtml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="home.cshtml">

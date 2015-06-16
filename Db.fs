@@ -1,4 +1,5 @@
-﻿module Db
+﻿[<RequireQualifiedAccess>]
+module Db
 
 open System
 
