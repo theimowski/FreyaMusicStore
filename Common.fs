@@ -158,7 +158,6 @@ module Html =
     open System.Text
 
     open Arachne.Http
-    open Arachne.Language
     
     open Freya.Machine.Extensions.Http
 
@@ -188,4 +187,4 @@ module Html =
                     { Charset = Some Charset.Utf8
                       Encodings = None
                       MediaType = Some MediaType.Html
-                      Languages = Some [ LanguageTag.Parse "en" ] } } }
+                      Languages = None } } }
