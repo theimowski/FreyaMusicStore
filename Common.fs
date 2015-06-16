@@ -59,6 +59,12 @@ let getSessionCartId : Freya<string option> = (fun freyaState ->
         async.Return (cartId, freyaState)
     )
 
+let removeSessionCartId : Freya<unit> = (fun freyaState ->
+        let ctx = Microsoft.Owin.OwinContext(freyaState.Environment)
+        ctx.Response.Cookies.Delete("cartId")
+        async.Return ((), freyaState)
+    )
+
 
 let userName (result: AuthenticateResult) =
     result.Identity.Claims |> Seq.find (fun c -> c.Type = ClaimTypes.Name) |> fun x -> x.Value

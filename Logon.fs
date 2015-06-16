@@ -71,12 +71,23 @@ let isAuthorized =
             return true
     }
 
+let upgradeCarts userName = 
+    freya {
+        let! cartId = getSessionCartId
+        cartId |> Option.iter (fun cartId ->
+            let ctx = Db.getContext()
+            Db.upgradeCarts (cartId, userName) ctx
+        )
+    }
+
 let post =
     freya {
         let! user = checkCredentials
         match user with
         | Some creds ->
             do! authenticate creds
+            do! upgradeCarts creds.UserName
+            do! removeSessionCartId
         | _ ->
             ()
     }

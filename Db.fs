@@ -105,3 +105,13 @@ let removeFromCart (cart : Cart) albumId (ctx : DbContext) =
     cart.Count <- cart.Count - 1
     if cart.Count = 0 then cart.Delete()
     ctx.SubmitUpdates()
+
+let upgradeCarts (cartId : string, username :string) (ctx : DbContext) =
+    for cart in getCarts cartId ctx do
+        match getCart username cart.AlbumId ctx with
+        | Some existing ->
+            existing.Count <- existing.Count +  cart.Count
+            cart.Delete()
+        | None ->
+            cart.CartId <- username
+    ctx.SubmitUpdates()
