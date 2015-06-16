@@ -61,7 +61,7 @@ let getSessionCartId : Freya<string option> = (fun freyaState ->
 
 let removeSessionCartId : Freya<unit> = (fun freyaState ->
         let ctx = Microsoft.Owin.OwinContext(freyaState.Environment)
-        ctx.Response.Cookies.Delete("cartId")
+        ctx.Response.Cookies.Delete("cartId", Microsoft.Owin.CookieOptions())
         async.Return ((), freyaState)
     )
 
@@ -77,6 +77,16 @@ let inline writeHtml (view : string, model : 'a) =
         let viewBag = DynamicViewBag()
         authResult |> Option.iter (fun r -> viewBag.AddValue("UserName", userName r))
         cartId |> Option.iter (fun c -> viewBag.AddValue("CartId", c))
+        let ctx = Db.getContext()
+        let cartItems =
+            match authResult, cartId with
+            | Some a, _ ->
+                Db.getCartsDetails (userName a) ctx |> List.sumBy (fun c -> c.Count)
+            | _, Some c ->
+                Db.getCartsDetails c ctx |> List.sumBy (fun c -> c.Count)
+            | _ -> 
+                0
+        viewBag.AddValue("CartItems", cartItems)
         let result =
             RazorEngine.Engine.Razor.RunCompile(contents, view, typeof<'a>, model, viewBag)
 

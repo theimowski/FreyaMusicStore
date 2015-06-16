@@ -25,9 +25,14 @@
         <ul id="navlist">
             <li class="first"><a href="@Uris.home" id="current">Home</a></li>
             <li><a href="@Uris.genres">Genres</a></li>
+            @{
+                var cartId = ViewBag.UserName ?? ViewBag.CartId;
+                var cartItems = ViewBag.CartItems;
+                if (cartId != null){
+                    <li><a href="@String.Format(Uris.cart, cartId)">Cart (@cartItems)</a></li>
+                }
+            }
             <li><a href="@Uris.albums">Albums</a></li>
-            <!-- <li> Html.RenderAction("CartSummary", "ShoppingCart");}</li>
-             -->
         </ul>
         <div style="float: right; margin-top: 20px;">
             @if (@ViewBag.UserName == null)
