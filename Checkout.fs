@@ -16,8 +16,8 @@ let ok _ =
 let post =
     freya {
         let ctx = Db.getContext()
-        let! a = getAuthResult
-        let userName = userName a.Value
+        let! a = getAuth
+        let userName = a.Value.UserName
         Db.placeOrder userName ctx
     }
 
@@ -34,7 +34,7 @@ let onUnauthorized _ =
 let pipe = 
     freyaMachine {
         including common
-        authorized isLoggedOn
+        authorized isAuthenticated
         handleUnauthorized onUnauthorized
         methodsSupported ( freya { return [ GET; POST ] } ) 
         postRedirect (Freya.init true)

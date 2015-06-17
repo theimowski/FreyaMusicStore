@@ -31,6 +31,11 @@ module Utils =
 
     let maybe = MaybeBuilder()
 
+    type Auth = {
+        UserName : string
+        Role : string
+    }
+
 [<AutoOpen>]
 module Katana = 
     open System.Security.Claims
@@ -41,16 +46,31 @@ module Katana =
 
     let getEnv: Freya<FreyaEnvironment> = (fun freyaState -> async { return freyaState.Environment, freyaState })
 
-    let authResult (ctx: OwinContext) =
-        ctx.Authentication.AuthenticateAsync(DefaultAuthenticationTypes.ApplicationCookie) 
+    let toAuth (authResult: AuthenticateResult) =
+        maybe {
+            let! nameClaim = authResult.Identity.Claims |> Seq.tryFind (fun claim -> claim.Type = ClaimTypes.Name)
+            let! roleClaim = authResult.Identity.Claims |> Seq.tryFind (fun claim -> claim.Type = ClaimTypes.Role)
+            return {
+                UserName = nameClaim.Value
+                Role = roleClaim.Value
+            }
+        }
+
+    let authType = DefaultAuthenticationTypes.ApplicationCookie
+
+    let auth (ctx: OwinContext) =
+        ctx.Authentication.AuthenticateAsync(authType) 
         |> Async.AwaitTask 
-        |> Async.map Option.fromNullable
+        |> Async.map (Option.fromNullable >> Option.bind toAuth)
 
-    let hasAdminRole (authResult: AuthenticateResult) =
-        authResult.Identity.HasClaim(Predicate(fun claim -> claim.Type = ClaimTypes.Role && claim.Value = "admin"))
+    let ctxSignIn auth (ctx: OwinContext) =
+        let claims = 
+                [ Claim(ClaimTypes.Role, auth.Role)
+                  Claim(ClaimTypes.Name, auth.UserName) ]
+        ctx.Authentication.SignIn(ClaimsIdentity(claims, authType))
 
-    let userName (authResult: AuthenticateResult) =
-        authResult.Identity.Claims |> Seq.find (fun c -> c.Type = ClaimTypes.Name) |> fun x -> x.Value
+    let ctxSignOut (ctx: OwinContext) =
+        ctx.Authentication.SignOut(authType)
 
     let owinContext = getEnv |> Freya.map (fun env -> OwinContext(env))
 
@@ -60,11 +80,15 @@ module Katana =
 
     let deleteResponseCookie key = owinContext |> Freya.map (fun ctx -> ctx.Response.Cookies.Delete(key, CookieOptions()))
 
-    let getAuthResult = owinContext |> Freya.bind (Freya.fromAsync authResult) |> Freya.memo
+    let getAuth = owinContext |> Freya.bind (Freya.fromAsync auth) |> Freya.memo
+
+    let signIn auth = owinContext |> Freya.map (ctxSignIn auth)
+
+    let signOut = owinContext |> Freya.map ctxSignOut
+
+    let isAuthenticated = getAuth |> Freya.map Option.isSome
     
-    let isLoggedOn = getAuthResult |> Freya.map Option.isSome
-    
-    let isAdmin = getAuthResult |> Freya.map (Option.exists hasAdminRole)
+    let isAdmin = getAuth |> Freya.map (Option.exists (fun auth -> auth.Role = "admin"))
 
 
 [<AutoOpen>]
@@ -166,15 +190,14 @@ module Html =
 
     let inline writeHtml (view : string, model : 'a) =
         freya {
-            let! authResult = getAuthResult
+            let! authResult = getAuth
             let! cartId = getRequestCookie "cartId"
             let albumsInCart cartId = Db.getCartsDetails cartId (Db.getContext()) |> List.sumBy (fun c -> c.Count)
             let viewBag = DynamicViewBag()
             match authResult, cartId with
             | Some authResult, _ ->
-                let name = userName authResult
-                viewBag.AddValue("CartItems", albumsInCart name)
-                viewBag.AddValue("UserName", name)
+                viewBag.AddValue("CartItems", albumsInCart authResult.UserName)
+                viewBag.AddValue("UserName", authResult.UserName)
             | _, Some cartId ->
                 viewBag.AddValue("CartItems", albumsInCart cartId)
                 viewBag.AddValue("CartId", cartId)

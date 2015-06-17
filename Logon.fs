@@ -26,21 +26,6 @@ let ok _ =
         return! writeHtml ("logon", {ReturnUrl = Uris.home; ValidationMsg = ""} )
     }
 
-let authenticate (user : Db.User) : Freya<unit> = (fun freyaState ->
-        let ctx = Microsoft.Owin.OwinContext(freyaState.Environment)
-        let claims = 
-            [ Claim(ClaimTypes.Role, user.Role)
-              Claim(ClaimTypes.Name, user.UserName) ]
-        ctx.Authentication.SignIn(ClaimsIdentity(claims, DefaultAuthenticationTypes.ApplicationCookie))
-        async.Return ((), freyaState)
-    )
-
-let signOut : Freya<unit> = (fun freyaState ->
-        let ctx = Microsoft.Owin.OwinContext(freyaState.Environment)
-        ctx.Authentication.SignOut(DefaultAuthenticationTypes.ApplicationCookie)
-        async.Return ((), freyaState)
-    )
-
 let checkCredentials = 
     freya {
         let! form = form
@@ -84,9 +69,9 @@ let post =
     freya {
         let! user = checkCredentials
         match user with
-        | Some creds ->
-            do! authenticate creds
-            do! upgradeCarts creds.UserName
+        | Some user ->
+            do! signIn {UserName = user.UserName; Role = user.Role}
+            do! upgradeCarts user.UserName
             do! deleteResponseCookie "cartId"
         | _ ->
             ()
@@ -100,7 +85,7 @@ let redirect =
 
 let delete = 
     freya {
-        let! loggedOn = isLoggedOn
+        let! loggedOn = isAuthenticated
         if loggedOn then
             do! signOut
     }
