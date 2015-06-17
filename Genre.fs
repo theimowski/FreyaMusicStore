@@ -2,15 +2,21 @@
 
 open Arachne.Http
 
+open Chiron
+open Chiron.Operators
+
 open Freya.Core
 open Freya.Machine
 open Freya.Machine.Extensions.Http
 open Freya.Router
 
-type Genre = {
-    Name : string
-    Albums : Album.Album []
-}
+type Genre = 
+    { Name : string
+      Albums : Album.Album [] }
+
+    static member ToJson (x: Genre) =
+            Json.write "name" x.Name
+         *> Json.write "albums" x.Albums
 
 let name =
     freya {
@@ -18,16 +24,23 @@ let name =
         return name.Value
     }
 
-let get =
+let ok spec =
     freya {
         let! name = name
         let ctx = Db.getContext()
         let albums = Db.getAlbumsForGenre name ctx |> Array.map Album.Album.fromDb
-        return! writeHtml ("genre", { Name = name; Albums = albums } )
+        let genre = { Name = name; Albums = albums }
+        return!
+            match spec.MediaTypes with
+            | Free ->  repJson genre
+            | Negotiated (m :: _) when m = MediaType.Json -> repJson genre
+            | Negotiated (m :: _) when m = MediaType.Html -> writeHtml ("genre", genre)
+            | _ -> failwith "Representation Failure"
     }
 
 let pipe =
     freyaMachine {
-        including common
+        using http
+        mediaTypesSupported (Freya.init [MediaType.Html; MediaType.Json])
         methodsSupported ( freya { return [ GET ] } )
-        handleOk (fun _ -> get ) } |> FreyaMachine.toPipeline
+        handleOk ok } |> FreyaMachine.toPipeline

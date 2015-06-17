@@ -5,6 +5,9 @@ open System.Globalization
 
 open Arachne.Http
 
+open Chiron
+open Chiron.Operators
+
 open Freya.Core
 open Freya.Router
 open Freya.Machine
@@ -28,6 +31,14 @@ type Album =
           GenreId = a.GenreId
           Price = a.Price
           AlbumArtUrl = a.AlbumArtUrl }
+
+    static member ToJson (x: Album) =
+            Json.write "albumId" x.AlbumId
+         *> Json.write "title" x.Title
+         *> Json.write "artistId" x.ArtistId
+         *> Json.write "genreId" x.GenreId
+         *> Json.write "price" x.Price
+         *> Json.write "albumArtUrl" x.AlbumArtUrl
 
 type AlbumDetails = 
     { AlbumId : int

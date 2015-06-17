@@ -8,12 +8,12 @@
 <h3>Browse Genres</h3>
 
 <p>
-    Select from @Model.Genres.Count() genres:
+    Select from @Model.Length genres:
 </p>
 <ul>
-    @foreach (var genre in Model.Genres)
+    @foreach (var genre in Model)
     {
-    <li><a href="@String.Format(@Uris.genre, genre.Name)">@genre.Name</a></li>
+    <li><a href="@String.Format(@Uris.genre, genre)">@genre</a></li>
     }
 </ul>
 }

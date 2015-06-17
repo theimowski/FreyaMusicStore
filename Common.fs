@@ -165,23 +165,12 @@ module Parsing =
         } |> Freya.memo
 
 [<AutoOpen>]
-module Machine = 
-    open Arachne.Http
-
-    open Freya.Machine
-    open Freya.Machine.Extensions.Http
-
-    let common =
-        freyaMachine {
-            using http
-            mediaTypesSupported (Freya.init [MediaType.Html]) }
-
-
-[<AutoOpen>]
-module Html =
+module Representations =
     open System.Text
 
     open Arachne.Http
+    
+    open Chiron
     
     open Freya.Machine.Extensions.Http
 
@@ -211,3 +200,44 @@ module Html =
                       Encodings = None
                       MediaType = Some MediaType.Html
                       Languages = None } } }
+    
+    let inline repJson x =
+        Freya.init
+            { Data = (Json.serialize >> Json.format >> Encoding.UTF8.GetBytes) x
+              Description =
+                { Charset = Some Charset.Utf8
+                  Encodings = None
+                  MediaType = Some MediaType.Json
+                  Languages = None } }
+
+
+[<AutoOpen>]
+module Machine = 
+    open Arachne.Http
+
+    open Freya.Machine
+    open Freya.Machine.Extensions.Http
+
+    let common =
+        freyaMachine {
+            using http
+            mediaTypesSupported (Freya.init [MediaType.Html]) }
+
+//    let ok fetch name spec =
+//        freya {
+//            let ctx = Db.getContext()
+//            let res = fetch ctx
+//            return!
+//                match spec.MediaTypes with
+//                | Free -> repJson res
+//                | Negotiated (m :: _) when m = MediaType.Json -> repJson res
+//                | Negotiated (m :: _) when m = MediaType.Html -> writeHtml (name, res)
+//                | _ -> failwith "Representation Failure"
+//        }
+//
+//    let res fetch name =
+//        freyaMachine {
+//            using http
+//            mediaTypesSupported (Freya.init [MediaType.Html; MediaType.Json])
+//            methodsSupported ( freya { return [ GET ] } ) 
+//            handleOk (ok fetch name) } 
