@@ -200,7 +200,7 @@ module Representations =
                       Encodings = None
                       MediaType = Some MediaType.Html
                       Languages = None } } }
-    
+
     let inline repJson x =
         Freya.init
             { Data = (Json.serialize >> Json.format >> Encoding.UTF8.GetBytes) x
@@ -209,6 +209,19 @@ module Representations =
                   Encodings = None
                   MediaType = Some MediaType.Json
                   Languages = None } }
+    
+    let inline ok fetch name spec =
+        freya {
+            let ctx = Db.getContext()
+            let! fetch = fetch
+            let res = fetch ctx
+            return!
+                match spec.MediaTypes with
+                | Free -> repJson res
+                | Negotiated (m :: _) when m = MediaType.Json -> repJson res
+                | Negotiated (m :: _) when m = MediaType.Html -> writeHtml (name, res)
+                | _ -> failwith "Representation Failure"
+        }
 
 
 [<AutoOpen>]
@@ -223,21 +236,9 @@ module Machine =
             using http
             mediaTypesSupported (Freya.init [MediaType.Html]) }
 
-//    let ok fetch name spec =
-//        freya {
-//            let ctx = Db.getContext()
-//            let res = fetch ctx
-//            return!
-//                match spec.MediaTypes with
-//                | Free -> repJson res
-//                | Negotiated (m :: _) when m = MediaType.Json -> repJson res
-//                | Negotiated (m :: _) when m = MediaType.Html -> writeHtml (name, res)
-//                | _ -> failwith "Representation Failure"
-//        }
-//
-//    let res fetch name =
-//        freyaMachine {
-//            using http
-//            mediaTypesSupported (Freya.init [MediaType.Html; MediaType.Json])
-//            methodsSupported ( freya { return [ GET ] } ) 
-//            handleOk (ok fetch name) } 
+    let inline res fetch name =
+        freyaMachine {
+            using http
+            mediaTypesSupported (Freya.init [MediaType.Html; MediaType.Json])
+            methodsSupported ( freya { return [ GET ] } ) 
+            handleOk (ok fetch name) } 
