@@ -1,17 +1,16 @@
 ﻿module FreyaMusicStore.Home
 
-open Arachne.Http
+open Chiron
 
 open Freya.Core
 open Freya.Machine
-open Freya.Machine.Extensions.Http
 
-type Container = {
-    Greeting : string
-}
+type Container = 
+    { Greeting : string }
 
-let pipe =
-    freyaMachine {
-        including common
-        methodsSupported ( freya { return [ GET ] } )
-        handleOk (fun _ -> freya { return!  writeHtml ("home", {Greeting = "Hello World!" } ) } ) } |> FreyaMachine.toPipeline
+    static member ToJson (x: Container) =
+            Json.write "greeting" x.Greeting
+
+let fetch = Freya.init (fun (_ : Db.DbContext) -> {Greeting = "Hello World!"} )
+
+let pipe = res fetch "home" |> FreyaMachine.toPipeline
