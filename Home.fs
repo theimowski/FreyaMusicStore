@@ -1,9 +1,12 @@
 ﻿module FreyaMusicStore.Home
 
+open Arachne.Http
+
 open Chiron
 
 open Freya.Core
 open Freya.Machine
+open Freya.Machine.Extensions.Http
 
 type Container = 
     { Greeting : string }
@@ -13,4 +16,8 @@ type Container =
 
 let fetch = Freya.init (fun (_ : Db.DbContext) -> {Greeting = "Hello World!"} )
 
-let pipe = res fetch "home" |> FreyaMachine.toPipeline
+
+let pipe = 
+    freyaMachine {
+        including (res fetch "home")
+        methodsSupported (Freya.init [GET]) } |> FreyaMachine.toPipeline

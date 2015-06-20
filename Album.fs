@@ -56,6 +56,14 @@ type AlbumDetails =
           Artist = a.Artist
           Genre = a.Genre }
 
+    static member ToJson (x: AlbumDetails) =
+            Json.write "albumId" x.AlbumId
+         *> Json.write "title" x.Title
+         *> Json.write "albumArtUrl" x.AlbumArtUrl
+         *> Json.write "price" x.Price
+         *> Json.write "artist" x.Artist
+         *> Json.write "genre" x.Genre
+
 let id =
     freya {
         let! id = Freya.getLensPartial (Route.atom "0")

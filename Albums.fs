@@ -6,6 +6,8 @@ open System.IO
 
 open Arachne.Http
 
+open Chiron
+
 open Freya.Core
 open Freya.Router
 open Freya.Machine
@@ -13,9 +15,6 @@ open Freya.Machine.Extensions.Http
 open Freya.Lenses.Http
 
 open Microsoft.AspNet.Identity
-
-type Albums = 
-    { Albums : Album.AlbumDetails [] }
 
 let isMalformed = 
     freya {
@@ -67,21 +66,16 @@ let onForbidden _ =
         return! writeHtml ("forbidden", ())
     }
 
-let get =
-    freya {
-        let ctx = Db.getContext()
-        let albums = Db.getAlbumsDetails ctx |> Array.map Album.AlbumDetails.fromDb
-        return! writeHtml ("albums", { Albums = albums } )
-    }
+let fetch : Freya<Db.DbContext -> _> = 
+    Db.getAlbumsDetails >> Array.map Album.AlbumDetails.fromDb |> Freya.init
 
 let pipe = 
     freyaMachine {
-        including common
+        including (res fetch "albums")
         methodsSupported ( freya { return [ GET; POST ] } ) 
         malformed isMalformed
         authorized isAuthenticated
         allowed isAdmin
-        handleOk (fun _ -> get)
         handleUnauthorized onUnauthorized
         handleForbidden onForbidden
         doPost post 

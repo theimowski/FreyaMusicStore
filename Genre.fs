@@ -7,6 +7,7 @@ open Chiron.Operators
 
 open Freya.Core
 open Freya.Machine
+open Freya.Machine.Extensions.Http
 open Freya.Router
 
 type Genre = 
@@ -32,4 +33,7 @@ let fetch : Freya<Db.DbContext -> _> =
             >> (fun albums -> { Name = name; Albums = albums })
     }
 
-let pipe = res fetch "genre" |> FreyaMachine.toPipeline
+let pipe = 
+    freyaMachine {
+        including (res fetch "genre")
+        methodsSupported (Freya.init [GET]) } |> FreyaMachine.toPipeline

@@ -240,5 +240,4 @@ module Machine =
         freyaMachine {
             using http
             mediaTypesSupported (Freya.init [MediaType.Html; MediaType.Json])
-            methodsSupported ( freya { return [ GET ] } ) 
             handleOk (ok fetch name) } 
