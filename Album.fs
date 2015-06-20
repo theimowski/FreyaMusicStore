@@ -72,13 +72,7 @@ let id =
         | _ -> return None
     }
 
-let ok _ =
-    freya {
-        let! id = id
-        let ctx = Db.getContext()
-        let album = Db.getAlbumDetails id.Value ctx |> Option.get |> AlbumDetails.fromDb
-        return! writeHtml ("album", album)
-    }
+
 
 let entity =
     freya {
@@ -163,17 +157,25 @@ let put =
         return ()
     }
 
+let fetch =
+    freya {
+        let! id = id
+        return
+            Db.getAlbumDetails id.Value
+            >> Option.get
+            >> AlbumDetails.fromDb
+    }
+
 let pipe = 
     freyaMachine {
-        including common
+        including (res fetch "album")
+        methodsSupported ( freya { return [ GET; PUT; DELETE ] } ) 
         malformed isMalformed
         authorized isAuthorized
         allowed isAllowed
         handleForbidden onForbidden
         handleUnauthorized onUnauthorized
         exists doesExist
-        methodsSupported ( freya { return [ GET; PUT; DELETE ] } ) 
-        handleOk ok
         respondWithEntity entity
         created (Freya.init false)
         doDelete delete

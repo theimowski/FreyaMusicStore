@@ -20,11 +20,12 @@ let musicStore =
     freyaRouter {
         resource (UriTemplate.Parse Uris.home) Home.pipe
         resource (UriTemplate.Parse Uris.albums) Albums.pipe
-        resource (UriTemplate.Parse Uris.newAlbum) NewAlbum.pipe
         resource (UriTemplate.Parse Uris.album) Album.pipe
-        resource (UriTemplate.Parse Uris.editAlbum) EditAlbum.pipe
         resource (UriTemplate.Parse Uris.genres) Genres.pipe
         resource (UriTemplate.Parse Uris.genre) Genre.pipe
+        
+        resource (UriTemplate.Parse Uris.newAlbum) NewAlbum.pipe
+        resource (UriTemplate.Parse Uris.editAlbum) EditAlbum.pipe
         
         resource (UriTemplate.Parse Uris.logon) Logon.pipe
         resource (UriTemplate.Parse Uris.register) Register.pipe 
