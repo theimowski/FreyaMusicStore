@@ -223,6 +223,21 @@ module Representations =
                 | _ -> failwith "Representation Failure"
         }
 
+    module Logon = 
+        type Logon = {
+            ReturnUrl : string
+            ValidationMsg : string
+        }
+
+    let onUnauthorized returnUrl _ =
+        freya {
+            return! writeHtml ("logon", {Logon.Logon.ReturnUrl = returnUrl; Logon.Logon.ValidationMsg = ""})
+        }
+
+    let onForbidden _ =
+        freya {
+            return! writeHtml ("forbidden", ())
+        }
 
 [<AutoOpen>]
 module Machine = 
@@ -230,6 +245,7 @@ module Machine =
 
     open Freya.Machine
     open Freya.Machine.Extensions.Http
+    open Freya.Lenses.Http
 
     let common =
         freyaMachine {
@@ -241,3 +257,24 @@ module Machine =
             using http
             mediaTypesSupported (Freya.init [MediaType.Html; MediaType.Json])
             handleOk (ok fetch name) } 
+
+    let onMeths meths f def = 
+        freya {
+            let! meth = Freya.getLens Request.meth
+            if meths |> List.exists ((=) meth) then
+                return! f
+            else 
+                return def
+        }
+
+    let protectAuthenticated meths returnUrl =
+        freyaMachine {
+            authorized (onMeths meths isAuthenticated true)
+            handleUnauthorized (onUnauthorized returnUrl)
+        }
+
+    let protectAdmin meths =
+        freyaMachine {
+            allowed (onMeths meths isAdmin true)
+            handleForbidden onForbidden
+        }

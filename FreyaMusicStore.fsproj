@@ -55,8 +55,8 @@
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
     <Compile Include="Db.fs" />
-    <Compile Include="Common.fs" />
     <Compile Include="Uris.fs" />
+    <Compile Include="Common.fs" />
     <Compile Include="Home.fs" />
     <Compile Include="Logon.fs" />
     <Compile Include="Register.fs" />

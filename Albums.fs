@@ -71,12 +71,14 @@ let fetch : Freya<Db.DbContext -> _> =
 
 let pipe = 
     freyaMachine {
-        including (res fetch "albums")
-        methodsSupported ( freya { return [ GET; POST ] } ) 
+        methodsSupported ( Freya.init [ GET; POST ] ) 
         malformed isMalformed
-        authorized isAuthenticated
-        allowed isAdmin
-        handleUnauthorized onUnauthorized
-        handleForbidden onForbidden
+        including (protectAuthenticated [ GET; POST ] Uris.albums)
+        including (protectAdmin [ GET; POST ])
+        including (res fetch "albums")
+        //authorized isAuthenticated
+        //allowed isAdmin
+        //handleUnauthorized onUnauthorized
+        //handleForbidden onForbidden
         doPost post 
         handleCreated onCreated} |> FreyaMachine.toPipeline

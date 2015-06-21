@@ -16,14 +16,11 @@ open Freya.Router
 
 open Microsoft.AspNet.Identity
 
-type Logon = {
-    ReturnUrl : string
-    ValidationMsg : string
-}
+
 
 let ok _ =
     freya {
-        return! writeHtml ("logon", {ReturnUrl = Uris.home; ValidationMsg = ""} )
+        return! writeHtml ("logon", {Logon.ReturnUrl = Uris.home; Logon.ValidationMsg = ""} )
     }
 
 let checkCredentials = 
@@ -43,7 +40,7 @@ let doUnauthorized _ =
         let! query = query 
         let returnPath = defaultArg (Map.tryFind "returnUrl" query) Uris.home
 
-        return! writeHtml ("logon", {ReturnUrl = returnPath; ValidationMsg = "User name or password invalid. Try admin/admin"} )
+        return! writeHtml ("logon", {Logon.ReturnUrl = returnPath; Logon.ValidationMsg = "User name or password invalid. Try admin/admin"} )
     }
 
 let isAuthorized = 
@@ -98,7 +95,7 @@ let doSeeOther _ =
         do! Freya.setLensPartial 
                 Response.Headers.location 
                 (Location.Parse (String.Format("http://localhost:8080{0}", returnPath)))
-        return! writeHtml ("logon", {ReturnUrl = Uris.home; ValidationMsg = ""} )
+        return! writeHtml ("logon", {Logon.ReturnUrl = Uris.home; Logon.ValidationMsg = ""} )
     }
 
 let pipe = 

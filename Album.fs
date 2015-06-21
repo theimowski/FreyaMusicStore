@@ -168,13 +168,15 @@ let fetch =
 
 let pipe = 
     freyaMachine {
-        including (res fetch "album")
         methodsSupported ( freya { return [ GET; PUT; DELETE ] } ) 
         malformed isMalformed
-        authorized isAuthorized
-        allowed isAllowed
-        handleForbidden onForbidden
-        handleUnauthorized onUnauthorized
+        including (protectAuthenticated [ PUT; DELETE ] Uris.albums)
+        including (protectAdmin [ PUT; DELETE ])
+        including (res fetch "album")
+        //authorized isAuthorized
+        //allowed isAllowed
+        //handleForbidden onForbidden
+        //handleUnauthorized onUnauthorized
         exists doesExist
         respondWithEntity entity
         created (Freya.init false)
