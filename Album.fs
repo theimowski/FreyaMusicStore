@@ -81,7 +81,15 @@ let entity =
 let isMalformed = 
     freya {
         let! id = id
-        return Option.isNone id
+        let! meth = Freya.getLens Request.meth
+        match meth with 
+        | GET | DELETE ->
+            return Option.isNone id    
+        | PUT ->
+            let! album = readAlbum
+            return Option.isNone album
+        | _ -> 
+            return failwith "unexpected meth"
     }
 
 let doesExist = 

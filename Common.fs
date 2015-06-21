@@ -11,6 +11,23 @@ module Async =
 module Option =
     let fromNullable = function | null -> None | x -> Some x
 
+module Either =
+    let Success = Choice1Of2
+    let Failure = Choice2Of2
+
+    let (|Success|Failure|) m =
+        match m with
+        | Choice1Of2 x -> Success x
+        | Choice2Of2 x -> Failure x
+
+    let bind f m =
+        match m with
+        | Success x -> f x
+        | Failure err -> Failure err
+
+    let toOption =
+        function Success x -> Some x | _ -> None
+
 module Tuple =
     let map f (x,y) = f x, f y
 
@@ -95,6 +112,11 @@ module Katana =
 module Parsing =
     open System.IO
     open System.Globalization
+    
+    open Arachne.Http
+
+    open Chiron
+    open Chiron.Operators
 
     open Freya.Lenses.Http
 
@@ -131,9 +153,12 @@ module Parsing =
         |> Freya.map toMap 
         |> Freya.memo
 
-    let form = 
+    let body =
         Freya.getLens Request.body 
         |> Freya.bind (Freya.fromAsync readStream) 
+    
+    let form = 
+        body
         |> Freya.map toMap 
         |> Freya.memo
 
@@ -144,24 +169,45 @@ module Parsing =
           Price : decimal
           AlbumArtUrl : string }
 
+        static member FromJson (_: AlbumForm) =
+                fun t a g p art ->
+                    { Title = t
+                      ArtistId = a
+                      GenreId = g
+                      Price = p
+                      AlbumArtUrl  = art }
+            <!> Json.read "title"
+            <*> Json.read "artistId"
+            <*> Json.read "genreId"
+            <*> Json.read "price"
+            <*> Json.read "albumArtUrl"
+
     let readAlbum =
         freya {
-            let! form = form
-            let album =
-                maybe {
-                    let! title = form |> Map.tryFind "Title"
-                    let! artistId = form |> Map.tryFind "ArtistId" |> Option.bind mInt
-                    let! genreId = form |> Map.tryFind "GenreId" |> Option.bind mInt
-                    let! price = form |> Map.tryFind "Price" |> Option.bind mDec
-                    let! albumArtUrl = form |> Map.tryFind "ArtUrl"
-                    return 
-                        { Title = title
-                          ArtistId = artistId
-                          GenreId = genreId
-                          Price = price
-                          AlbumArtUrl = albumArtUrl }
-                }
-            return album
+            let! contentType = Freya.getLensPartial Request.Headers.contentType
+            match contentType with
+            | Some (ContentType (MediaType (Type "application", SubType "x-www-form-urlencoded",_))) -> 
+                let! form = form
+                let album =
+                    maybe {
+                        let! title = form |> Map.tryFind "Title"
+                        let! artistId = form |> Map.tryFind "ArtistId" |> Option.bind mInt
+                        let! genreId = form |> Map.tryFind "GenreId" |> Option.bind mInt
+                        let! price = form |> Map.tryFind "Price" |> Option.bind mDec
+                        let! albumArtUrl = form |> Map.tryFind "ArtUrl"
+                        return 
+                            { Title = title
+                              ArtistId = artistId
+                              GenreId = genreId
+                              Price = price
+                              AlbumArtUrl = albumArtUrl }
+                    }
+                return album
+            | Some (ContentType m) when m = MediaType.Json ->
+                let! body = body
+                return (Json.tryParse body |> Either.bind Json.tryDeserialize |> Either.toOption)
+            | _ ->
+                return None
         } |> Freya.memo
 
 [<AutoOpen>]
