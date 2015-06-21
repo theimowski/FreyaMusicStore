@@ -3,6 +3,7 @@
 open System
 open System.IO
 
+open Arachne.Http
 open Arachne.Uri.Template
 
 open Freya.Core
@@ -30,6 +31,7 @@ type Project () =
                 resource (UriTemplate.Parse Uris.newAlbum) NewAlbum.pipe
                 resource (UriTemplate.Parse Uris.editAlbum) EditAlbum.pipe
         
+                resource (UriTemplate.Parse Uris.sessions) Sessions.pipe
                 resource (UriTemplate.Parse Uris.logon) Logon.pipe
                 resource (UriTemplate.Parse Uris.register) Register.pipe 
         

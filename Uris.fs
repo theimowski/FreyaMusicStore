@@ -8,6 +8,8 @@ let editAlbum = "/album/{0}/edit"
 let genres =    "/genres"
 let genre =     "/genre/{0}"
 
+let sessions =  "/sessions"
+
 let logon =     "/account/logon"
 let register =  "/account/register"
 

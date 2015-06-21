@@ -58,6 +58,7 @@
     <Compile Include="Uris.fs" />
     <Compile Include="Common.fs" />
     <Compile Include="Home.fs" />
+    <Compile Include="Sessions.fs" />
     <Compile Include="Logon.fs" />
     <Compile Include="Register.fs" />
     <Compile Include="Album.fs" />
