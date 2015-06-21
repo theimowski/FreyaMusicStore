@@ -231,6 +231,7 @@ module Representations =
 
     let onUnauthorized returnUrl _ =
         freya {
+            let! returnUrl = returnUrl
             return! writeHtml ("logon", {Logon.Logon.ReturnUrl = returnUrl; Logon.Logon.ValidationMsg = ""})
         }
 

@@ -72,8 +72,6 @@ let id =
         | _ -> return None
     }
 
-
-
 let entity =
     freya {
         let! meth = Freya.getLens Request.meth
@@ -125,32 +123,6 @@ let editAlbum =
         return AlbumDetails.fromDb details.Value
     } |> Freya.memo
 
-let isAuthorized = 
-    freya {
-        let! meth = Freya.getLens Request.meth
-        match meth with 
-        | GET -> return true
-        | _ -> return! isAuthenticated
-    }
-
-let isAllowed = 
-    freya {
-        let! meth = Freya.getLens Request.meth
-        match meth with 
-        | GET -> return true
-        | _ -> return! isAdmin
-    }
-
-let onUnauthorized _ =
-    freya {
-        return! writeHtml ("logon", {Logon.Logon.ReturnUrl = Uris.albums; Logon.Logon.ValidationMsg = ""})
-    }
-
-let onForbidden _ =
-    freya {
-        return! writeHtml ("forbidden", ())
-    }
-
 let put = 
     freya {
         let! _ = editAlbum
@@ -170,13 +142,9 @@ let pipe =
     freyaMachine {
         methodsSupported ( freya { return [ GET; PUT; DELETE ] } ) 
         malformed isMalformed
-        including (protectAuthenticated [ PUT; DELETE ] Uris.albums)
+        including (protectAuthenticated [ PUT; DELETE ] (Freya.init Uris.albums))
         including (protectAdmin [ PUT; DELETE ])
         including (res fetch "album")
-        //authorized isAuthorized
-        //allowed isAllowed
-        //handleForbidden onForbidden
-        //handleUnauthorized onUnauthorized
         exists doesExist
         respondWithEntity entity
         created (Freya.init false)

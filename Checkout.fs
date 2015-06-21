@@ -26,17 +26,11 @@ let seeOther _ =
         return! writeHtml ("checkoutComplete", () )
     }
 
-let onUnauthorized _ =
-    freya {
-        return! writeHtml ("logon", {Logon.Logon.ReturnUrl = Uris.checkout; Logon.Logon.ValidationMsg = ""})
-    }
-
 let pipe = 
     freyaMachine {
-        including common
-        authorized isAuthenticated
-        handleUnauthorized onUnauthorized
         methodsSupported ( freya { return [ GET; POST ] } ) 
+        including common
+        including (protectAuthenticated [ GET; POST ] (Freya.init Uris.checkout))
         postRedirect (Freya.init true)
         handleSeeOther seeOther
         handleOk ok
