@@ -30,9 +30,11 @@ type Project () =
         
                 resource (UriTemplate.Parse Uris.newAlbum) NewAlbum.pipe
                 resource (UriTemplate.Parse Uris.editAlbum) EditAlbum.pipe
+                resource (UriTemplate.Parse Uris.logon) Logon.pipe
         
                 resource (UriTemplate.Parse Uris.sessions) Sessions.pipe
-                resource (UriTemplate.Parse Uris.logon) Logon.pipe
+                resource (UriTemplate.Parse Uris.session) Session.pipe
+        
                 resource (UriTemplate.Parse Uris.register) Register.pipe 
         
                 resource (UriTemplate.Parse Uris.cart) Cart.pipe
