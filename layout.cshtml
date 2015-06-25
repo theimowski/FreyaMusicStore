@@ -62,7 +62,7 @@
             };
             $.ajax({
                 type: "DELETE",
-                url: "@Uris.logon",
+                url: String.format("@Uris.session", "@ViewBag.UserName"),
                 success: success
             });
         });

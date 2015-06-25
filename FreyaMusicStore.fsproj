@@ -61,6 +61,7 @@
     <Compile Include="Sessions.fs" />
     <Compile Include="Session.fs" />
     <Compile Include="Logon.fs" />
+    <Compile Include="Users.fs" />
     <Compile Include="Register.fs" />
     <Compile Include="Album.fs" />
     <Compile Include="EditAlbum.fs" />

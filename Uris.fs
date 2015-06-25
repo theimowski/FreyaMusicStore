@@ -11,6 +11,8 @@ let genre =     "/genre/{0}"
 let sessions =  "/sessions"
 let session =   "/session/{0}"
 
+let users =     "/users"
+
 let logon =     "/account/logon"
 let register =  "/account/register"
 
