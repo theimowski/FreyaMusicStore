@@ -16,26 +16,25 @@ open Microsoft.AspNet.Identity
 open Microsoft.Owin.Security
 open Microsoft.Owin.Security.Cookies
 
-let musicStore =
-    freyaRouter {
-        resource (UriTemplate.Parse Uris.home) Home.pipe
-        resource (UriTemplate.Parse Uris.albums) Albums.pipe
-        resource (UriTemplate.Parse Uris.album) Album.pipe
-        resource (UriTemplate.Parse Uris.genres) Genres.pipe
-        resource (UriTemplate.Parse Uris.genre) Genre.pipe
-        
-        resource (UriTemplate.Parse Uris.newAlbum) NewAlbum.pipe
-        resource (UriTemplate.Parse Uris.editAlbum) EditAlbum.pipe
-        
-        resource (UriTemplate.Parse Uris.logon) Logon.pipe
-        resource (UriTemplate.Parse Uris.register) Register.pipe 
-        
-        resource (UriTemplate.Parse Uris.cart) Cart.pipe
-        resource (UriTemplate.Parse Uris.checkout) Checkout.pipe } |> FreyaRouter.toPipeline
-
 type Project () =
     member __.Configuration (appBuilder : Owin.IAppBuilder) =
         
+        let musicStore =
+            freyaRouter {
+                resource (UriTemplate.Parse Uris.home) Home.pipe
+                resource (UriTemplate.Parse Uris.albums) Albums.pipe
+                resource (UriTemplate.Parse Uris.album) Album.pipe
+                resource (UriTemplate.Parse Uris.genres) Genres.pipe
+                resource (UriTemplate.Parse Uris.genre) Genre.pipe
+        
+                resource (UriTemplate.Parse Uris.newAlbum) NewAlbum.pipe
+                resource (UriTemplate.Parse Uris.editAlbum) EditAlbum.pipe
+        
+                resource (UriTemplate.Parse Uris.logon) Logon.pipe
+                resource (UriTemplate.Parse Uris.register) Register.pipe 
+        
+                resource (UriTemplate.Parse Uris.cart) Cart.pipe
+                resource (UriTemplate.Parse Uris.checkout) Checkout.pipe } |> FreyaRouter.toPipeline
 
         appBuilder.Use(
             typeof<CookieAuthenticationMiddleware>, 
