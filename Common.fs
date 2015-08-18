@@ -149,12 +149,12 @@ module Parsing =
         |> Async.AwaitTask
 
     let query = 
-        Freya.getLens Request.query 
-        |> Freya.map toMap 
+        Freya.getLens Request.Query_ 
+        |> Freya.map (fun x -> let (Arachne.Uri.Query q) = x in q |> toMap)
         |> Freya.memo
 
     let body =
-        Freya.getLens Request.body 
+        Freya.getLens Request.Body_ 
         |> Freya.bind (Freya.fromAsync readStream) 
     
     let form = 
@@ -184,7 +184,7 @@ module Parsing =
 
     let readAlbum =
         freya {
-            let! contentType = Freya.getLensPartial Request.Headers.contentType
+            let! contentType = Freya.getLensPartial Request.Headers.ContentType_
             match contentType with
             | Some (ContentType (MediaType (Type "application", SubType "x-www-form-urlencoded",_))) -> 
                 let! form = form
@@ -307,7 +307,7 @@ module Machine =
 
     let onMeths meths f def = 
         freya {
-            let! meth = Freya.getLens Request.meth
+            let! meth = Freya.getLens Request.Method_
             if meths |> List.exists ((=) meth) then
                 return! f
             else 

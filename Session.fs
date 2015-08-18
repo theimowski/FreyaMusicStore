@@ -11,7 +11,7 @@ open Freya.Machine.Extensions.Http
 open Freya.Machine.Router
 open Freya.Router
 
-let sessionId = Freya.getLensPartial (Route.atom "0") |> Freya.map Option.get
+let sessionId = Freya.getLensPartial (Route.Atom_ "0") |> Freya.map Option.get
 
 let sessionOwner =
     freya {

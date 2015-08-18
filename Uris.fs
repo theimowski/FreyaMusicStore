@@ -1,5 +1,7 @@
 ﻿module FreyaMusicStore.Uris
 
+let endpoint = "http://localhost:8083"
+
 let home =      "/"
 let albums =    "/albums"
 let newAlbum =  "/albums/new"

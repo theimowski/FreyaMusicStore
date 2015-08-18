@@ -54,8 +54,8 @@ let seeOther _ =
         let returnPath = defaultArg (Map.tryFind "returnUrl" query) Uris.home
 
         do! Freya.setLensPartial 
-                Response.Headers.location 
-                (Location.Parse (String.Format("http://localhost:8080{0}", returnPath)))
+                Response.Headers.Location_ 
+                (Location.Parse (Uris.endpoint + returnPath))
         return { Data = [||]; Description = { Charset = None; Encodings = None; MediaType = None; Languages = None } }
     }
 

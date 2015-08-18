@@ -69,7 +69,7 @@ let run _ =
         RazorEngine.Engine.Razor.Compile(contents, name)
     )
     printfn "starting app..."
-    let _ = WebApp.Start<Project> ("http://localhost:8080")
+    let _ = WebApp.Start<Project> (Uris.endpoint)
     printfn "app started. Press enter to quit"
     let _ = Console.ReadLine ()
     0

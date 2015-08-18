@@ -18,7 +18,7 @@ open Microsoft.AspNet.Identity
 
 let isMalformed = 
     freya {
-        let! meth = Freya.getLens Request.meth
+        let! meth = Freya.getLens Request.Method_
         match meth with 
         | POST -> let! album = readAlbum in return album.IsNone
         | _ -> return false
@@ -51,8 +51,8 @@ let onCreated _ =
     freya {
         let! album = createAlbum
         do! Freya.setLensPartial 
-                Response.Headers.location 
-                (Location.Parse (String.Format(String.Format("http://localhost:8080{0}", Uris.album), album.AlbumId)))
+                Response.Headers.Location_ 
+                (Location.Parse (String.Format(Uris.endpoint + Uris.album, album.AlbumId)))
         return! writeHtml ("album", album)
     }
 

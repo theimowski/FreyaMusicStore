@@ -32,8 +32,8 @@ let createUser =
 let seeOther _ =
     freya {
         do! Freya.setLensPartial 
-                Response.Headers.location 
-                (Location.Parse (String.Format("http://localhost:8080{0}", Uris.home)))
+                Response.Headers.Location_ 
+                (Location.Parse (Uris.endpoint + Uris.home))
         return { Data = [||]; Description = { Charset = None; Encodings = None; MediaType = None; Languages = None } }
     }
 

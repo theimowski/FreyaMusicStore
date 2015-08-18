@@ -28,7 +28,7 @@ type Cart = {
 
 let id =
     freya {
-        let! id = Freya.getLensPartial (Route.atom "0")
+        let! id = Freya.getLensPartial (Route.Atom_ "0")
         return id
     } |> Freya.memo
 
@@ -49,7 +49,7 @@ let albumId =
 
 let isMalformed = 
     freya {
-        let! meth = Freya.getLens Request.meth
+        let! meth = Freya.getLens Request.Method_
         match meth with
         | GET ->
             return false

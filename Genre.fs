@@ -20,7 +20,7 @@ type Genre =
 
 let name =
     freya {
-        let! name = Freya.getLensPartial (Route.atom "0")
+        let! name = Freya.getLensPartial (Route.Atom_ "0")
         return name.Value
     }
 

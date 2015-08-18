@@ -40,7 +40,7 @@ let represent (n: Specification) x =
 // Freya
 
 let path =
-    Freya.memo (Freya.getLens Request.path)
+    Freya.memo (Freya.getLens Request.Path_)
 
 let fileInfo =
     Freya.memo (getFileInfo <!> path)
