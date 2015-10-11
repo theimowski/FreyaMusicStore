@@ -2,4 +2,5 @@ bin/
 obj/
 *.suo
 .vs/
+paket.exe
 packages/
