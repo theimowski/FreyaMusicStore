@@ -1,6 +1,6 @@
 source https://www.nuget.org/api/v2/
 
-nuget Freya 2.0.194
+nuget Freya
 nuget Microsoft.AspNet.Identity.Core 2.2.1
 nuget Microsoft.AspNet.Razor 3.0.0
 nuget Microsoft.Owin.Host.HttpListener 3.0.1
